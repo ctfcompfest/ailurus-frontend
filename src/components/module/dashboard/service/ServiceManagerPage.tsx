@@ -2,11 +2,12 @@ import { getUser, postUser, useUserResources } from "@/components/fetcher/user";
 import { Challenge } from "@/types/challenge";
 import { ServerMode } from "@/types/common";
 import { ServerState, ServiceMeta } from "@/types/service";
-import { ArrowDown, ArrowUp, Lock } from "@phosphor-icons/react";
+import { Lock } from "@phosphor-icons/react";
 import { useMutation, useQueries, useQuery } from "@tanstack/react-query";
 import React, { useRef } from "react";
 import ConfirmModal from "../../common/Modal/ConfirmModal";
 import { useRouter } from "next/router";
+import ServiceStatus from "../../common/Modal/ServiceStatus";
 
 interface TeamChallServiceProps {
   chall: Challenge<ServerMode> | undefined;
@@ -56,19 +57,6 @@ function TeamChallService({ chall, isUnlocked }: TeamChallServiceProps) {
       }),
   });
 
-  const faultyDisplay = (
-    <span className="text-error items-center gap-2">
-      <ArrowDown size={20} className="inline" />
-      {" Faulty"}
-    </span>
-  );
-  const validDisplay = (
-    <span className="text-success items-center gap-2">
-      <ArrowUp size={20} className="inline" />
-      {" Valid"}
-    </span>
-  );
-
   return (
     <div className="p-4 rounded-md bg-neutral">
       <div className="px-4 pt-4">
@@ -76,13 +64,11 @@ function TeamChallService({ chall, isUnlocked }: TeamChallServiceProps) {
         <h3 className="font-bold text-xl gap-2">
           [
           <span>
-            {statusQuery.isFetching
-              ? "Loading..."
-              : statusQuery.error
-              ? "An error occured"
-              : statusQuery.data?.data == 0
-              ? faultyDisplay
-              : validDisplay}
+            {statusQuery.error ? (
+              "An error occured"
+            ) : (
+              <ServiceStatus status={statusQuery.data?.data} />
+            )}
           </span>{" "}
           ]{"  "}
           {chall?.name ?? "ChallengeNotFound"}{" "}

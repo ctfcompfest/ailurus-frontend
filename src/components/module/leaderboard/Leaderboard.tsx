@@ -4,6 +4,7 @@ import { ChallengeScore, Score } from "@/types/scoreboard";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import React from "react";
+import ServiceStatus from "../common/Modal/ServiceStatus";
 
 interface LeaderboardProps {
   isAdmin?: boolean;
@@ -101,7 +102,7 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
                         {(challScore.sla * 100).toFixed(2) ?? "?"}%
                       </span>
                       <span title="State">
-                        {serviceState === 0 ? "Faulty" : "Valid"}
+                        <ServiceStatus status={serviceState} size={18}/>
                       </span>
                     </div>
                   </td>

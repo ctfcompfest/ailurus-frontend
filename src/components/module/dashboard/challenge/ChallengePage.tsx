@@ -15,6 +15,7 @@ import { useAtom } from "jotai";
 import React, { useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, Lock } from "@phosphor-icons/react";
 import Link from "next/link";
+import ServiceStatus from "../../common/Modal/ServiceStatus";
 
 interface ServiceRowProps {
   chall: Challenge<ServerMode> | undefined;
@@ -42,19 +43,6 @@ function TeamServiceRow({
   const { isFetching: statusFetching, data: status } = useUserServicesStatus();
   const state = status?.data[challId.toString()]?.[teamId.toString()];
 
-  const faultyDisplay = (
-    <span className="text-error items-center gap-2">
-      <ArrowDown size={20} className="inline" />
-      {" Faulty"}
-    </span>
-  );
-  const validDisplay = (
-    <span className="text-success items-center gap-2">
-      <ArrowUp size={20} className="inline" />
-      {" Valid"}
-    </span>
-  );
-
   return (
     <div className="flex gap-2 w-full">
       <div
@@ -64,11 +52,7 @@ function TeamServiceRow({
         <div className="flex flex-col gap-2 justify-center">
           <strong>{teamName}</strong>
           <span>
-            {statusFetching
-              ? "Fetching..."
-              : state === 0
-              ? faultyDisplay
-              : validDisplay}
+            <ServiceStatus status={state} />
           </span>
         </div>
         <ul className="list-inside">
