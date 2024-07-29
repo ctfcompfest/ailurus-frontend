@@ -23,8 +23,8 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
     queryKey: ["leaderboard", isAdmin ? "admin" : "user"],
     queryFn: () =>
       isAdmin
-        ? getAdmin<Score[]>("admin/scoreboard/")
-        : getUser<Score[], { is_freeze: boolean }>("scoreboard/"),
+        ? getAdmin<Score[]>("admin/leaderboard/")
+        : getUser<Score[], { is_freeze: boolean }>("leaderboard/"),
   });
 
   if (userResourcesQuery.isLoading || scoreboardQuery.isLoading) {
@@ -52,97 +52,107 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
             Leaderboard is frozen.
           </div>
         )}
-
-      <table className="table">
-        <thead>
-          <tr>
-            <th></th>
-            <th>Team</th>
-            {userResourcesQuery.datas.challenges.data.map((chall) => (
-              <th key={chall.id} className="w-40">
-                {chall.name}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {scoreboardQuery.data?.data?.map((team) => (
-            <tr key={team.id}>
-              <th>{team.rank}</th>
-              <td>
-                <div className="flex flex-col gap-2">
-                  <strong className="font-bold">{team.name}</strong>
-                  <span title="Total Score">{team.total_score.toFixed(2)}</span>
-                </div>
-              </td>
-
-              {userResourcesQuery.datas.challenges.data.map((chall) => {
-                const challScore: ChallengeScore | undefined =
-                  team.challenges[chall.id.toString()];
-                const serviceState =
-                  userResourcesQuery.datas.serviceStatus.data[
-                    chall.id.toString()
-                  ]?.[team.id.toString()];
-                return (
-                  <td key={chall.id}>
-                    <div className="flex flex-col font-mono text-base">
-                      <span
-                        className="flex flex-row items-center gap-2"
-                        title="Attack Score"
-                      >
-                        <Skull /> {challScore.attack.toFixed(2) ?? 0}
-                      </span>
-
-                      <span
-                        className="flex flex-row items-center gap-2"
-                        title="Defend Score"
-                      >
-                        <ShieldPlus /> {challScore.defense.toFixed(2) ?? 0}
-                      </span>
-
-                      <div className="flex flex-row items-center gap-2">
-                        <FlagCheckered />
-                        <span title="Flag Captured">
-                          {challScore.flag_captured ?? 0}
-                        </span>{" "}
-                        /{" "}
-                        <span title="Flag Stolen">
-                          {challScore.flag_stolen ?? 0}
-                        </span>
-                      </div>
-
-                      <div
-                        className={clsx(
-                          "flex flex-row items-center gap-2",
-                          serviceState === 1 ? "text-success" : "text-error"
-                        )}
-                      >
-                        <span title="SLA">
-                          {(challScore.sla * 100).toFixed(2) ?? "?"}%
-                        </span>
-                        <span
-                          title="State"
-                          className="flex flex-row gap-1 items-center"
-                        >
-                          {serviceState === 0 ? (
-                            <>
-                              <ArrowDown /> Faulty
-                            </>
-                          ) : (
-                            <>
-                              <ArrowUp /> Valid
-                            </>
-                          )}
-                        </span>
-                      </div>
+      {
+        scoreboardQuery?.data?.data.length === 0 ?
+        <>
+          <div className="flex min-h-screen items-center justify-center">
+            Leaderboard is empty.
+          </div>
+        </>
+        :
+        <>
+          <table className="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Team</th>
+                {userResourcesQuery.datas.challenges.data.map((chall) => (
+                  <th key={chall.id} className="w-40">
+                    {chall.name}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {scoreboardQuery.data?.data?.map((team) => (
+                <tr key={team.id}>
+                  <th>{team.rank}</th>
+                  <td>
+                    <div className="flex flex-col gap-2">
+                      <strong className="font-bold">{team.name}</strong>
+                      <span title="Total Score">{team.total_score.toFixed(2)}</span>
                     </div>
                   </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+
+                  {userResourcesQuery.datas.challenges.data.map((chall) => {
+                    const challScore: ChallengeScore | undefined =
+                      team.challenges[chall.id.toString()];
+                    const serviceState =
+                      userResourcesQuery.datas.serviceStatus.data[
+                        chall.id.toString()
+                      ]?.[team.id.toString()];
+                    return (
+                      <td key={chall.id}>
+                        <div className="flex flex-col font-mono text-base">
+                          <span
+                            className="flex flex-row items-center gap-2"
+                            title="Attack Score"
+                          >
+                            <Skull /> {challScore.attack.toFixed(2) ?? 0}
+                          </span>
+
+                          <span
+                            className="flex flex-row items-center gap-2"
+                            title="Defend Score"
+                          >
+                            <ShieldPlus /> {challScore.defense.toFixed(2) ?? 0}
+                          </span>
+
+                          <div className="flex flex-row items-center gap-2">
+                            <FlagCheckered />
+                            <span title="Flag Captured">
+                              {challScore.flag_captured ?? 0}
+                            </span>{" "}
+                            /{" "}
+                            <span title="Flag Stolen">
+                              {challScore.flag_stolen ?? 0}
+                            </span>
+                          </div>
+
+                          <div
+                            className={clsx(
+                              "flex flex-row items-center gap-2",
+                              serviceState === 1 ? "text-success" : "text-error"
+                            )}
+                          >
+                            <span title="SLA">
+                              {(challScore.sla * 100).toFixed(2) ?? "?"}%
+                            </span>
+                            <span
+                              title="State"
+                              className="flex flex-row gap-1 items-center"
+                            >
+                              {serviceState === 0 ? (
+                                <>
+                                  <ArrowDown /> Faulty
+                                </>
+                              ) : (
+                                <>
+                                  <ArrowUp /> Valid
+                                </>
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      }
     </div>
   );
 }

@@ -17,7 +17,7 @@ import { ArrowDown, ArrowUp, Lock } from "@phosphor-icons/react";
 import Link from "next/link";
 
 interface ServiceRowProps {
-  chall: Challenge<ServerMode> | undefined;
+  chall: Challenge | undefined;
   services: Record<string, string[]> | undefined;
   teams: Team<ServerMode>[] | undefined;
 }
@@ -128,7 +128,7 @@ function ServiceRow({ chall, services, teams }: ServiceRowProps) {
   });
   const { data: unlockedData } = useQuery({
     queryKey: ["unlocked"],
-    queryFn: () => getUser<number[]>("my/solves"),
+    queryFn: () => getUser<number[]>("my/allow-manage-services"),
   });
 
   const parsedJwt = useMemo(
@@ -155,7 +155,7 @@ function ServiceRow({ chall, services, teams }: ServiceRowProps) {
       <div className="flex flex-col gap-2 p-4">
         <div className="flex flex-row justify-between pt-4">
           <h1 className="text-2xl font-bold pb-5">
-            {chall?.name ?? "ChallengeNotFound"}
+            {chall?.title ?? "ChallengeNotFound"}
           </h1>
         </div>
         <p
@@ -235,7 +235,7 @@ export default function ChallengePage() {
   const { isLoading, error, datas } = useUserResources();
   const challData = useQuery({
     queryKey: ["challenges", challId],
-    queryFn: () => getUser<Challenge<ServerMode>>("challenges/" + challId),
+    queryFn: () => getUser<Challenge>("challenges/" + challId),
   });
 
   if (isLoading || challData.isLoading) {

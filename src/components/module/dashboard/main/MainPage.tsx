@@ -5,20 +5,19 @@ import {
   useUserResources,
 } from "@/components/fetcher/user";
 import { Challenge } from "@/types/challenge";
-import { ServerMode } from "@/types/common";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import React, { useMemo, useState } from "react";
 import { Lock } from "@phosphor-icons/react";
 import Link from "next/link";
 
 interface ServiceRowProps {
-  chall: Challenge<ServerMode> | undefined;
+  chall: Challenge | undefined;
 }
 
 function ServiceRow({ chall }: ServiceRowProps) {
   const { data: unlockedData } = useQuery({
     queryKey: ["unlocked"],
-    queryFn: () => getUser<number[]>("my/solves"),
+    queryFn: () => getUser<number[]>("my/allow-manage-services"),
   });
   const challUnlocked = (unlockedData?.data ?? []).includes(chall?.id ?? -1);
 
@@ -26,7 +25,7 @@ function ServiceRow({ chall }: ServiceRowProps) {
     <div className="card w-72 bg-neutral">
       <div className="card-body">
         <h2 className="card-title justify-center">
-          {chall?.name ?? "ChallengeNotFound"}
+          {chall?.title ?? "ChallengeNotFound"}
         </h2>
         <div className="card-actions justify-center align-middle pt-5">
           <Link
@@ -67,7 +66,7 @@ export default function MainPage() {
   const { isLoading, error, data } = useUserChallenges();
   useQuery({
     queryKey: ["unlocked"],
-    queryFn: () => getUser<number[]>("my/solves"),
+    queryFn: () => getUser<number[]>("my/allow-manage-services"),
   });
   const [flag, setFlag] = useState("");
   const submitFlag = useMutation({

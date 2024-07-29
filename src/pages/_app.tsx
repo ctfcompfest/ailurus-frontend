@@ -40,6 +40,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
             if (error instanceof HTTPError) {
               if (
                 error.response.status === 403 ||
+                error.response.status === 401 ||
                 error.response.status === 422
               ) {
                 const jotaiStore = getDefaultStore();

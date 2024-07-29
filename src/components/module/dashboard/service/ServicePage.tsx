@@ -8,7 +8,7 @@ import React, { useMemo, useRef, useState } from "react";
 import ConfirmModal from "../../common/Modal/ConfirmModal";
 
 interface TeamChallServiceProps {
-  chall: Challenge<ServerMode>;
+  chall: Challenge;
   isUnlocked: boolean;
 }
 
@@ -17,7 +17,7 @@ function TeamChallService({ chall, isUnlocked }: TeamChallServiceProps) {
     queries: [
       {
         queryKey: ["team", "chall", chall.id, "status"],
-        queryFn: () => getUser<ServerState>(`my/services/${chall.id}/status`),
+        queryFn: () => getUser<ServerState>(`chalenges/${chall.id}/services-status`),
         enabled: isUnlocked,
       },
       {
@@ -138,7 +138,7 @@ export default function ServicePage() {
     data: unlockedData,
   } = useQuery({
     queryKey: ["unlocked"],
-    queryFn: () => getUser<number[]>("my/solves"),
+    queryFn: () => getUser<number[]>("my/allow-manage-services"),
   });
 
   if (isLoading || unlockedLoad) {

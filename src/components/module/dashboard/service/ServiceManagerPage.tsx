@@ -9,7 +9,7 @@ import ConfirmModal from "../../common/Modal/ConfirmModal";
 import { useRouter } from "next/router";
 
 interface TeamChallServiceProps {
-  chall: Challenge<ServerMode> | undefined;
+  chall: Challenge | undefined;
   isUnlocked: boolean;
 }
 
@@ -18,12 +18,12 @@ function TeamChallService({ chall, isUnlocked }: TeamChallServiceProps) {
     queries: [
       {
         queryKey: ["team", "chall", chall?.id, "status"],
-        queryFn: () => getUser<ServerState>(`my/services/${chall?.id}/status`),
+        queryFn: () => getUser<ServerState>(`my/challenges/${chall?.id}/services-status/`),
         enabled: isUnlocked,
       },
       {
         queryKey: ["team", "chall", chall?.id, "meta"],
-        queryFn: () => getUser<ServiceMeta>(`my/services/${chall?.id}/meta`),
+        queryFn: () => getUser<ServiceMeta>(`my/challenges/${chall?.id}/service-manager/?action=get_meta`),
         enabled: isUnlocked,
       },
     ],
@@ -37,7 +37,7 @@ function TeamChallService({ chall, isUnlocked }: TeamChallServiceProps) {
 
       const formdata = new FormData();
       formdata.set("patchfile", tarfile);
-      return postUser(`my/services/${chall?.id}/patch`, { body: formdata });
+      return postUser(`my/challenges/${chall?.id}/service-manager/?action=patch`, { body: formdata });
     },
     onSettled: () => {
       if (ref.current) ref.current.value = "";
@@ -45,13 +45,13 @@ function TeamChallService({ chall, isUnlocked }: TeamChallServiceProps) {
   });
   const resetService = useMutation({
     mutationFn: () =>
-      postUser(`my/services/${chall?.id}/reset`, {
+      postUser(`my/challenges/${chall?.id}/service-manager/?action=reset`, {
         json: { confirm: true },
       }),
   });
   const restartService = useMutation({
     mutationFn: () =>
-      postUser(`my/services/${chall?.id}/restart`, {
+      postUser(`my/challenges/${chall?.id}/service-manager/?action=restart`, {
         json: { confirm: true },
       }),
   });
@@ -85,7 +85,7 @@ function TeamChallService({ chall, isUnlocked }: TeamChallServiceProps) {
               : validDisplay}
           </span>{" "}
           ]{"  "}
-          {chall?.name ?? "ChallengeNotFound"}{" "}
+          {chall?.title ?? "ChallengeNotFound"}{" "}
           {!isUnlocked && <Lock size={18} className="inline" />}
         </h3>
       </div>
@@ -158,7 +158,7 @@ export default function ServiceManagerPage() {
     data: challData,
   } = useQuery({
     queryKey: ["challenges", challId],
-    queryFn: () => getUser<Challenge<ServerMode>>("challenges/" + challId),
+    queryFn: () => getUser<Challenge>("challenges/" + challId),
   });
 
   const {
@@ -167,7 +167,7 @@ export default function ServiceManagerPage() {
     data: unlockedData,
   } = useQuery({
     queryKey: ["unlocked"],
-    queryFn: () => getUser<number[]>("my/solves"),
+    queryFn: () => getUser<number[]>("my/allow-manage-services"),
   });
 
   if (challLoad || unlockedLoad) {

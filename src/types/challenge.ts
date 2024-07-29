@@ -1,22 +1,16 @@
-import { ExtendOnServerMode, ServerMode } from "./common";
+export type Challenge = {
+  id: number;
+  slug: string;
+  title: string;
+  description: string | undefined;
+  description_raw: string | undefined;
+};
 
-export type Challenge<TServerMode extends ServerMode> = ExtendOnServerMode<
-  {
-    id: number;
-    name: string;
-    description: string;
-    num_expose: number;
-  },
-  TServerMode,
-  "share",
-  {
-    server_id: number;
-    server_host: string;
-  }
->;
-
-export type ChallengeDetail<TServerMode extends ServerMode> =
-  Challenge<TServerMode> & {
-    visibility: number[];
-    config_status: boolean;
-  };
+export type ChallengeDetail = Challenge & {
+  visibility: number[];
+  artifact_checksum: string;
+  testcase_checksum: string;
+  point: number;
+  num_flag: number;
+  num_service: number;
+};

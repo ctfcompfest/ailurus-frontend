@@ -7,7 +7,7 @@ export interface ComponentWithChildren {
 
 export type BaseResponse<T, TExtra = {}> = {
   data: T;
-  status: "success" | "error";
+  status: "success" | "error" | "failed";
   message: string | undefined;
 } & TExtra;
 

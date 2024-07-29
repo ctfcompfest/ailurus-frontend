@@ -51,19 +51,31 @@ export default function DashboardLayout({
       <div className="p-4 flex flex-row justify-between">
         <h1 className="text-2xl font-bold">{contest.event_name}</h1>
         <strong className="font-bold text-2xl">
-          {contest.event_status.state === "finished" ? (
+          {contest.event_status === "finished" ? (
             "Event Finished!"
-          ) : contest.event_status.state === "not started" ? (
+          ) : contest.event_status === "not started" ? (
             "Not Started"
-          ) : contest.event_status.state === "running" ? (
+          ) : contest.event_status === "running" ? (
             <>
               {contest.number_round > 1
-                ? `Round: ${contest.event_status.current_round}`
+                ? `Round: ${contest.current_round}`
                 : ""}
               {contest.number_round > 1 && contest.number_tick > 1 && " / "}
               {contest.number_tick > 1
-                ? `Tick: ${contest.event_status.current_tick}`
+                ? `Tick: ${contest.current_tick}`
                 : ""}
+            </>
+          ) : contest.event_status === "paused" ? (
+            <>
+              {"Paused ("}
+              {contest.number_round > 1
+                ? `Round: ${contest.current_round}`
+                : ""}
+              {contest.number_round > 1 && contest.number_tick > 1 && " / "}
+              {contest.number_tick > 1
+                ? `Tick: ${contest.current_tick}`
+                : ""}
+              {")"}
             </>
           ) : (
             "Unknown event state"

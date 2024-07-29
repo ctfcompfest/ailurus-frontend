@@ -1,19 +1,8 @@
-type EventState =
-  | {
-      state: "not started";
-    }
-  | {
-      state: "finished";
-    }
-  | {
-      state: "running";
-      current_round: number;
-      current_tick: number;
-    };
-
 export interface ContestInfo {
   event_name: string;
-  event_status: EventState;
+  event_status: string;
+  current_round: number;
+  current_tick: number;
   start_time: string;
   number_round: number;
   number_tick: number;

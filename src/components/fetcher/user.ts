@@ -87,7 +87,7 @@ export const useUserServicesStatus = () =>
   useQuery({
     queryKey: ["user", "services", "status"],
     queryFn: () =>
-      getUser<Record<string, Record<string, ServerState>>>("services/status"),
+      getUser<Record<string, Record<string, ServerState>>>("services-status"),
   });
 
 export const useUserResources = () => {

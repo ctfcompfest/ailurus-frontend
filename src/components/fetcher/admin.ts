@@ -19,7 +19,7 @@ async function doApi<T, TExtra = {}>(
     const response = await api(url, {
       ...options,
       headers: {
-        "X-ADCE-SECRET": JSON.parse(localStorage.getItem("adminToken") ?? ""),
+        "X-ADMIN-SECRET": JSON.parse(localStorage.getItem("adminToken") ?? ""),
       },
     }).json<BaseResponse<T, TExtra>>();
     if (notify) toast.success(response.message ?? "Success", { id: toastId });

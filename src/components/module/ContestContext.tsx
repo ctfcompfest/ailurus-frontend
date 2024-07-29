@@ -12,9 +12,9 @@ interface ContestContextData {
 export const ContestContext = createContext<ContestContextData>({
   contest: {
     event_name: "",
-    event_status: {
-      state: "not started",
-    },
+    event_status: "not started",
+    current_tick: 0,
+    current_round: 0,
     number_round: 0,
     number_tick: 0,
     start_time: "",
