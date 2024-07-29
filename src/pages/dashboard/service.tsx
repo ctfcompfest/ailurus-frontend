@@ -1,5 +1,4 @@
 import DashboardLayout from "@/components/module/dashboard/DashboardLayout";
-import MainPage from "@/components/module/dashboard/main/MainPage";
 import ServicePage from "@/components/module/dashboard/service/ServicePage";
 import React, { ReactElement } from "react";
 

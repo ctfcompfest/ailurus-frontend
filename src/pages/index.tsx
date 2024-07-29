@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import useTitle from "@/components/hook/useTitle";
 import { postUser } from "@/components/fetcher/user";
 import { useContestContext } from "@/components/module/ContestContext";
 import { authTokenAtom } from "@/components/states";
@@ -12,6 +13,7 @@ export default function Home() {
   const router = useRouter();
   const [authToken, setAuthToken] = useAtom(authTokenAtom);
   const { contest } = useContestContext();
+  useTitle(`${contest.event_name}`);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

@@ -1,9 +1,11 @@
+import useTitle from "@/components/hook/useTitle";
 import { useContestContext } from "@/components/module/ContestContext";
 import Leaderboard from "@/components/module/leaderboard/Leaderboard";
 import React from "react";
 
 export default function LeaderboardPage() {
   const { contest } = useContestContext();
+  useTitle(`Leaderboard | ${contest.event_name}`);
   
   return (
     <div className="flex flex-col min-h-screen p-4 container mx-auto gap-4">

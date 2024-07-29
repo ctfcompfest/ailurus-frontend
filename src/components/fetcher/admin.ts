@@ -91,6 +91,6 @@ export const useAdminTeams = () =>
 export const useAdminChallenges = () =>
   useQuery({
     queryKey: ["admin", "challenges"],
-    queryFn: () => getAdmin<Challenge<ServerMode>[]>("admin/challenges/"),
+    queryFn: () => getAdmin<Challenge[]>("admin/challenges/"),
   });
 

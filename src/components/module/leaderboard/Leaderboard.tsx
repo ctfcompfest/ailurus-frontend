@@ -1,5 +1,5 @@
 import { getAdmin } from "@/components/fetcher/admin";
-import { getUser, useUserResources } from "@/components/fetcher/user";
+import { getUser, usePublicResources } from "@/components/fetcher/user";
 import { ChallengeScore, Score } from "@/types/scoreboard";
 import {
   ArrowDown,
@@ -18,7 +18,7 @@ interface LeaderboardProps {
 }
 
 export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
-  const userResourcesQuery = useUserResources();
+  const userResourcesQuery = usePublicResources();
   const scoreboardQuery = useQuery({
     queryKey: ["leaderboard", isAdmin ? "admin" : "user"],
     queryFn: () =>
@@ -68,7 +68,7 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
                 <th>Team</th>
                 {userResourcesQuery.datas.challenges.data.map((chall) => (
                   <th key={chall.id} className="w-40">
-                    {chall.name}
+                    {chall.title}
                   </th>
                 ))}
               </tr>

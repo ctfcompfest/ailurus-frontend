@@ -9,6 +9,7 @@ import { authTokenAtom } from "@/components/states";
 import { useRouter } from "next/router";
 import { Team } from "@/types/team";
 import { parseJwt } from "@/components/utils";
+import useTitle from "@/components/hook/useTitle";
 
 interface ConfigMenuProps {
   icon: ReactElement<Icon>;
@@ -33,6 +34,8 @@ export default function DashboardLayout({
   className,
 }: ComponentWithChildren) {
   const { contest } = useContestContext();
+  useTitle(`${contest.event_name}`);
+
   const [authToken, setAuthToken] = useAtom(authTokenAtom);
   const router = useRouter();
 
