@@ -1,4 +1,4 @@
-import { Submission, SubmissionResponse } from "@/types/submission";
+import { Submission } from "@/types/submission";
 import {
   getAdmin,
   useAdminChallenges,
@@ -8,10 +8,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { Pagination } from "@/components/module/common/Pagination/Pagination";
 import { useRouter } from "next/router";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 
-interface SubmissionRowProps {
-  data: Submission;
+interface PaginationType {
+  current_page: number,
+  prev_page : number,
+  next_page: number
 }
 
 function FilterPanel() {
@@ -24,6 +26,15 @@ function FilterPanel() {
     team_id: useRef<HTMLSelectElement>(null),
     challenge_id: useRef<HTMLSelectElement>(null),
   };
+
+  useEffect(() => {
+    // Set initial values based on searchParams
+    for (const key in filterRef) {
+      if (filterRef[key].current) {
+        filterRef[key].current.value = searchParams.get(key) || '*';
+      }
+    }
+  }, [searchParams]);
 
   const resetFiltering = () => {
     router.push("/admin/submission");
@@ -56,7 +67,7 @@ function FilterPanel() {
           </label>
           <select
             ref={filterRef["verdict"]}
-            value={searchParams.get("verdict") ?? undefined}
+            defaultValue="*"
             className="select select-bordered"
           >
             <option>*</option>
@@ -70,7 +81,7 @@ function FilterPanel() {
           </label>
           <select
             ref={filterRef["challenge_id"]}
-            value={searchParams.get("challenge_id") ?? undefined}
+            defaultValue="*"
             className="select select-bordered"
           >
             <option>*</option>
@@ -96,7 +107,7 @@ function FilterPanel() {
           </label>
           <select
             ref={filterRef["team_id"]}
-            value={searchParams.get("team_id") ?? undefined}
+            defaultValue="*"
             className="select select-bordered"
           >
             <option>*</option>
@@ -126,7 +137,7 @@ function FilterPanel() {
   );
 }
 
-function SubmissionRow({ data }: SubmissionRowProps) {
+function SubmissionRow({ data }: {data: Submission}) {
   return (
     <tr>
       <th>{data.id}</th>
@@ -135,16 +146,17 @@ function SubmissionRow({ data }: SubmissionRowProps) {
       <td>{data.team_name}</td>
       <td>{data.value}</td>
       <td>{data.verdict ? "Valid" : "Invalid"}</td>
+      <td>{data.point.toFixed(2)}</td>
     </tr>
   );
 }
 
-function SubmissionPanel() {
+export default function SubmissionPage() {
   const searchParams = useSearchParams();
   const { isLoading, data } = useQuery({
     queryKey: ["submissions", searchParams.toString()],
     queryFn: () =>
-      getAdmin<SubmissionResponse>("admin/submissions/", {
+      getAdmin<Submission[], PaginationType>("admin/submissions/", {
         searchParams: searchParams,
       }),
   });
@@ -158,47 +170,42 @@ function SubmissionPanel() {
   }
 
   return (
-    <div>
-      <div>
-        <table className="table table-zebra">
-          {/* head */}
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Time</th>
-              <th>Challenge</th>
-              <th>Team</th>
-              <th>Value</th>
-              <th>Verdict</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data?.data.data?.map((submission) => (
-              <SubmissionRow
-                data={submission}
-                key={"submission-" + submission.id}
-              />
-            ))}
-          </tbody>
-        </table>
-        <Pagination
-          activePage={data?.data.current_page ?? 1}
-          prevPage={data?.data.prev_page}
-          nextPage={data?.data.next_page}
-        />
-      </div>
-    </div>
-  );
-}
-
-export default function SubmissionPage() {
-  return (
     <div className="px-4 justify-center w-full">
       <div className="flex flex-row justify-between">
         <h2 className="py-2 text-2xl font-bold">Submission</h2>
       </div>
       <FilterPanel />
-      <SubmissionPanel />
+      <div>
+        <div>
+          <table className="table table-zebra">
+            {/* head */}
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Time</th>
+                <th>Challenge</th>
+                <th>Team</th>
+                <th>Value</th>
+                <th>Verdict</th>
+                <th>Point(s)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data?.data.map((submission) => (
+                <SubmissionRow
+                  data={submission}
+                  key={"submission-" + submission.id}
+                />
+              ))}
+            </tbody>
+          </table>
+          <Pagination
+            activePage={data?.current_page ?? 1}
+            prevPage={data?.prev_page}
+            nextPage={data?.next_page}
+          />
+        </div>
+      </div>
     </div>
   );
 }

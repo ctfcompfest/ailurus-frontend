@@ -22,7 +22,10 @@ export default function ConfirmModal({
             <button className="btn" onClick={() => ref.current?.close()}>
               Close
             </button>
-            <button className="btn btn-primary" onClick={onAction}>
+            <button className="btn btn-primary" onClick={() => {
+              onAction();
+              ref.current?.close();
+            }}>
               {action}
             </button>
           </div>

@@ -20,16 +20,7 @@ export function InputRow<T extends FieldValues>({
   textarea,
 }: InputRowProps<T>) {
   const { register } = useFormContext<T>();
-  const [file, setFile] = useState<File | null>(null);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-    } else {
-      setFile(null);
-    }
-  };
-
+  
   return (
     <div className="form-control w-full">
       <label className="label">

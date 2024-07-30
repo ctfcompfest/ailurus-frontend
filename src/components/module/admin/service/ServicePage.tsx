@@ -1,162 +1,109 @@
-import { getAdmin, postAdmin } from "@/components/fetcher/admin";
+import { postAdmin, useAdminChallenges, useAdminTeams } from "@/components/fetcher/admin";
 import { Challenge } from "@/types/challenge";
-import { ServiceList } from "@/types/service";
 import { Team } from "@/types/team";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import React from "react";
 import ConfirmModal from "../../common/Modal/ConfirmModal";
+import ServiceDetailModal from "./ServiceDetailModal";
 
-interface ServiceRowProps {
-  chall: Challenge | undefined;
-  services: Record<string, string[]>;
-}
-
-interface TeamServiceRowProps {
-  teamId: number;
-  challId: number;
-  teamName: string;
-  addresses: string[];
-}
-
-function TeamServiceRow({
-  teamName,
-  addresses,
-  teamId,
-  challId,
-}: TeamServiceRowProps) {
+function ServiceRow({chall, team} : {chall: Challenge, team: Team}) {
   const resetMutation = useMutation({
     mutationFn: () =>
-      postAdmin(`admin/services/${challId}/teams/${teamId}/reset`, {
+      postAdmin(`admin/teams/${team.id}/challenges/${chall.id}/service-manager/?action=reset`, {
         json: { confirm: true },
       }),
   });
   const restartMutation = useMutation({
     mutationFn: () =>
-      postAdmin(`admin/services/${challId}/teams/${teamId}/restart`, {
+      postAdmin(`admin/teams/${team.id}/challenges/${chall.id}/service-manager/?action=restart`, {
+        json: { confirm: true },
+      }),
+  });
+  const provisionMutation = useMutation({
+    mutationFn: () =>
+      postAdmin(`admin/teams/${team.id}/challenges/${chall.id}/service-manager/?action=provision`, {
         json: { confirm: true },
       }),
   });
 
-  const { isFetching: statusFetching, data: status } = useQuery({
-    queryKey: ["admin", "services", "status", challId, teamId],
-    queryFn: () =>
-      getAdmin<number>(`admin/services/${challId}/teams/${teamId}/status`),
-  });
-
   return (
     <div
-      key={teamId}
-      className="flex flex-row justify-between p-4 rounded-md bg-base-100 text-base-content items-center"
+      className="p-4 rounded-md bg-neutral text-neutral-content flex flex-row justify-between items-center my-2"
     >
-      <div className="flex flex-col gap-2">
-        <div className="flex flex-row gap-2">
-          <strong>{teamName}</strong>
-          <ul className="list-inside">
-            {addresses.map((addr) => (
-              <li key={addr}>{addr}</li>
-            ))}
-          </ul>
-        </div>
-
-        <p>
-          Status:{" "}
-          <strong className="font-bold">
-            {statusFetching
-              ? "Loading"
-              : status?.data == 0
-              ? "Faulty"
-              : "Valid"}
-          </strong>
-        </p>
+      <div className="flex flex-col gap-1">
+        {team.name}
       </div>
 
-      <div className="flex flex-row gap-2">
+      <div className="flex flex-row gap-2 items-center">
+        <ServiceDetailModal
+          challId={chall.id}
+          teamId={team.id}
+          btn={
+            <button className="btn btn-black-500 btn-sm">
+              See detail
+            </button>
+          }
+        />
         <ConfirmModal
-          action="reset"
-          btn={<button className="btn btn-error btn-sm">Reset</button>}
-          onAction={() => resetMutation.mutate()}
+          action="provision"
+          btn={<button className="btn btn-accent btn-sm">Provision</button>}
+          onAction={() => provisionMutation.mutate()}
         >
-          Are you sure you want to reset?
+          Service for team <strong>{team.name}</strong> in challenge <strong>{chall.title}</strong>&nbsp;
+          will be <u>provisioned</u>. Are you sure?
         </ConfirmModal>
         <ConfirmModal
           action="restart"
           btn={<button className="btn btn-primary btn-sm">Restart</button>}
           onAction={() => restartMutation.mutate()}
         >
-          Are you sure you want to restart?
+          Service for team <strong>{team.name}</strong> in challenge <strong>{chall.title}</strong>&nbsp;
+          will be <u>restarted</u>. Are you sure?
+        </ConfirmModal>
+        <ConfirmModal
+          action="reset"
+          btn={<button className="btn btn-error btn-sm">Reset</button>}
+          onAction={() => resetMutation.mutate()}
+        >
+          Service for team <strong>{team.name}</strong> in challenge <strong>{chall.title}</strong>&nbsp;
+          will be <u>reset</u>. Are you sure?
         </ConfirmModal>
       </div>
     </div>
   );
 }
 
-function ServiceRow({ chall, services }: ServiceRowProps) {
-  const { isLoading: teamsLoading, data: teamsData } = useQuery({
-    queryKey: ["teams"],
-    queryFn: () => getAdmin<Team[]>("admin/teams/"),
+function ChallengeServicesSection({chall, teams}: {chall: Challenge, teams: Team[] | undefined}) {
+  return(
+    <div className="my-5">
+      <div className="rounded-md p-2 my-2 flex flex-row justify-between items-center gap-4">
+        <strong className="font-strong text-lg">{chall.title}</strong>
+      </div>
+      {teams?.map(team => (
+        <ServiceRow chall={chall} team={team} key={`servicerow-${team.id}-${chall.id}`}/>
+      ))}
+    </div>
+  )
+}
+
+export default function ServicePage() {
+  const { isLoading: challengesLoad, data: challenges } = useAdminChallenges();
+  const { isLoading: teamsLoad, data: teams } = useAdminTeams();
+  
+  const provisionServices = useMutation({
+    mutationFn: () =>
+      postAdmin(`admin/services-manager/?action=provision`, {
+        json: { challenges: "*", teams: "*" },
+      }),
   });
 
-  console.log(chall);
-
-  if (teamsLoading) {
+  if (challengesLoad || teamsLoad) {
     return (
-      <div className="flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <span className="loading loading-spinner loading-lg"></span>
       </div>
     );
   }
-
-  if (!!!teamsData) {
-    return (
-      <div className="flex items-center justify-center">
-        An error occured while trying to load team data.
-      </div>
-    );
-  }
-
-  return (
-    <details className="p-4 rounded-md bg-neutral">
-      <summary className="font-bold">
-        {chall?.title ?? "ChallengeNotFound"}
-      </summary>
-      <div className="flex flex-col gap-2 pl-4">
-        {Object.entries(services).map(([teamId, address]) => {
-          const team = teamsData.data.find(
-            (team) => team.id === Number(teamId)
-          );
-          return (
-            <TeamServiceRow
-              addresses={address}
-              challId={chall?.id ?? 0}
-              teamId={team?.id ?? 0}
-              teamName={team?.name ?? "TeamNotFound"}
-              key={`${chall?.id}-${team?.id}`}
-            />
-          );
-        })}
-      </div>
-    </details>
-  );
-}
-
-export default function ServicePage() {
-  const { isLoading: servicesLoading, data: servicesData } = useQuery({
-    queryKey: ["services"],
-    queryFn: () => getAdmin<ServiceList>("admin/services/"),
-    refetchInterval: false,
-  });
-  const { isLoading: challsLoading, data: challsData } = useQuery({
-    queryKey: ["challenges"],
-    queryFn: () => getAdmin<Challenge[]>("admin/challenges/"),
-    refetchInterval: false,
-  });
-
-  const provisionServices = useMutation({
-    mutationFn: () =>
-      postAdmin("admin/services/provision", {
-        json: { challenges: "*", teams: "*" },
-      }),
-  });
 
   return (
     <div className="px-4">
@@ -168,45 +115,20 @@ export default function ServicePage() {
         <div className="flex flex-col gap-2">
           <strong className="font-strong text-lg">Provision Services</strong>
           <p className="text-sm">
-            Provision each team&apos;s challenge services to the respective
-            server.
+            Provision each team&apos;s challenge services.
           </p>
         </div>
         <button
           className="btn btn-primary"
           onClick={() => provisionServices.mutate()}
         >
-          Provision
+          Provision All
         </button>
       </div>
 
-      <div className="flex flex-col gap-4">
-        {servicesLoading || challsLoading ? (
-          <div className="flex items-center justify-center">
-            <span className="loading loading-spinner loading-lg"></span>
-          </div>
-        ) : !!!servicesData || Object.keys(servicesData.data).length === 0 ? (
-          <div className="flex items-center justify-center">
-            No services to show
-          </div>
-        ) : !!!challsData ? (
-          <div className="flex items-center justify-center">
-            Failed to load challenges data
-          </div>
-        ) : (
-          <div className="flex flex-col gap-2">
-            {Object.entries(servicesData.data).map(([challId, services]) => (
-              <ServiceRow
-                key={challId}
-                chall={challsData.data.find(
-                  (chall) => chall.id == Number(challId)
-                )}
-                services={services}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      {challenges?.data.map((chall) => (
+        <ChallengeServicesSection chall={chall} teams={teams?.data} key={`challsection-${chall.id}`} />
+      ))}
     </div>
   );
 }

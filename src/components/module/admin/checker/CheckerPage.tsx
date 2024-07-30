@@ -1,4 +1,4 @@
-import { Checker, CheckerResponse } from "@/types/checker";
+import { Checker } from "@/types/checker";
 import {
   getAdmin,
   useAdminChallenges,
@@ -9,6 +9,12 @@ import { useSearchParams } from "next/navigation";
 import { Pagination } from "@/components/module/common/Pagination/Pagination";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
+
+interface PaginationType {
+  current_page: number,
+  prev_page : number,
+  next_page: number
+}
 
 const checkerResultMap: { [index: number]: string } = {
   0: "Fail",
@@ -25,10 +31,19 @@ function FilterPanel() {
   const { isLoading: teamsLoad, data: teams } = useAdminTeams();
   const searchParams = useSearchParams();
   const filterRef: { [index: string]: any } = {
-    result: useRef<HTMLSelectElement>(null),
+    status: useRef<HTMLSelectElement>(null),
     team_id: useRef<HTMLSelectElement>(null),
     challenge_id: useRef<HTMLSelectElement>(null),
   };
+
+  useEffect(() => {
+    // Set initial values based on searchParams
+    for (const key in filterRef) {
+      if (filterRef[key].current) {
+        filterRef[key].current.value = searchParams.get(key) || '*';
+      }
+    }
+  }, [searchParams]);
 
   const resetFiltering = () => {
     router.push("/admin/checker");
@@ -60,8 +75,8 @@ function FilterPanel() {
             <span className="label-text">Result</span>
           </label>
           <select
-            ref={filterRef["result"]}
-            value={searchParams.get("result") ?? undefined}
+            ref={filterRef["status"]}
+            defaultValue="*"
             className="select select-bordered"
           >
             <option>*</option>
@@ -75,7 +90,7 @@ function FilterPanel() {
           </label>
           <select
             ref={filterRef["challenge_id"]}
-            value={searchParams.get("challenge") ?? undefined}
+            defaultValue="*"
             className="select select-bordered"
           >
             <option>*</option>
@@ -101,7 +116,7 @@ function FilterPanel() {
           </label>
           <select
             ref={filterRef["team_id"]}
-            value={searchParams.get("team") ?? undefined}
+            defaultValue="*"
             className="select select-bordered"
           >
             <option>*</option>
@@ -138,21 +153,20 @@ function CheckerRow({ data }: CheckerRowProps) {
       <td>{data.time_created}</td>
       <td>{data.challenge_name}</td>
       <td>{data.team_name}</td>
-      <td>{checkerResultMap[data.result] ?? "undefined"}</td>
+      <td>{checkerResultMap[data.status] ?? "undefined"}</td>
       <td>
-        <pre>{data.detail}</pre>
+        <pre>{JSON.stringify(data.detail, null, 2)}</pre>
       </td>
     </tr>
   );
 }
 
-function CheckerPanel() {
-  const router = useRouter();
+export default function CheckerPage() {
   const searchParams = useSearchParams();
   const { isLoading, data } = useQuery({
-    queryKey: ["checkers", searchParams.toString()],
+    queryKey: ["checkresults", searchParams.toString()],
     queryFn: () =>
-      getAdmin<CheckerResponse>("admin/checkresults/", {
+      getAdmin<Checker[], PaginationType>("admin/checkresults/", {
         searchParams: searchParams,
       }),
   });
@@ -166,44 +180,38 @@ function CheckerPanel() {
   }
 
   return (
-    <div>
-      <div>
-        <table className="table table-zebra">
-          {/* head */}
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Time</th>
-              <th>Challenge</th>
-              <th>Team</th>
-              <th>Status</th>
-              <th>Detail</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data?.data.data?.map((checker) => (
-              <CheckerRow data={checker} key={"checker-" + checker.id} />
-            ))}
-          </tbody>
-        </table>
-        <Pagination
-          activePage={data?.data.current_page ?? 1}
-          prevPage={data?.data.prev_page}
-          nextPage={data?.data.next_page}
-        />
-      </div>
-    </div>
-  );
-}
-
-export default function CheckerPage() {
-  return (
     <div className="px-4 justify-center w-full">
       <div className="flex flex-row justify-between">
         <h2 className="py-2 text-2xl font-bold">Checker</h2>
       </div>
       <FilterPanel />
-      <CheckerPanel />
+      <div>
+        <div>
+          <table className="table table-zebra">
+            {/* head */}
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Time</th>
+                <th>Challenge</th>
+                <th>Team</th>
+                <th>Status</th>
+                <th>Detail</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data?.data.map((checker) => (
+                <CheckerRow data={checker} key={"checker-" + checker.id} />
+              ))}
+            </tbody>
+          </table>
+          <Pagination
+            activePage={data?.current_page ?? 1}
+            prevPage={data?.prev_page}
+            nextPage={data?.next_page}
+          />
+        </div>
+      </div>
     </div>
   );
 }

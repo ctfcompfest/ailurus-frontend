@@ -1,16 +1,16 @@
 import { AdminContextProvider } from "@/components/module/admin/AdminContext";
 import AdminLayout from "@/components/module/admin/AdminLayout";
-import ServerPage from "@/components/module/admin/server/ServerPage";
+import MachinePage from "@/components/module/admin/machine/MachinePage";
 import React, { ReactElement } from "react";
 
-export default function Server() {
+export default function Machine() {
   return (
     <AdminLayout>
-      <ServerPage />
+      <MachinePage />
     </AdminLayout>
   );
 }
 
-Server.getLayout = function getLayout(page: ReactElement) {
+Machine.getLayout = function getLayout(page: ReactElement) {
   return <AdminContextProvider>{page}</AdminContextProvider>;
 };

@@ -32,7 +32,6 @@ export default function ConfigPage() {
   };
 
   const handleSave = (key: string) => {
-    const updatedConfig = { ...contestConfig, [key]: editedValue };
     mutateConfig.mutate({key: key, value: editedValue});
     setEditingKey(null);
   };

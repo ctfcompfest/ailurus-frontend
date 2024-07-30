@@ -4,7 +4,6 @@ import { ChallengeDetail as typeChallenge } from "@/types/challenge";
 import { deleteAdmin, getAdmin } from "@/components/fetcher/admin";
 import ChallengeFormModal from "./ChallengeFormModal";
 import { Plus } from "@phosphor-icons/react";
-import ChallengeDetailModal from "./ChallengeDetailModal";
 
 function ChallengeRow({ challenge }: { challenge: typeChallenge }) {
   const queryClient = useQueryClient();
@@ -12,6 +11,7 @@ function ChallengeRow({ challenge }: { challenge: typeChallenge }) {
     mutationFn: () => deleteAdmin("admin/challenges/" + challenge.id),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ["challenges"]});
+      queryClient.invalidateQueries({queryKey: ["admin", "challenges"]});
     },
   });
 
@@ -19,14 +19,9 @@ function ChallengeRow({ challenge }: { challenge: typeChallenge }) {
 
   return (
     <div className="flex flex-row justify-between p-4 bg-neutral text-neutral-content rounded-md">
-      <strong className="font-bold">{updatedChall.title}</strong>
+      {updatedChall.title}
 
       <div className="flex flex-row gap-2">
-        <ChallengeDetailModal
-          challId={updatedChall.id}
-          btn={<button className="btn btn-primary btn-sm">Detail</button>}
-        />
-
         <ChallengeFormModal
           mode="update"
           chall={{

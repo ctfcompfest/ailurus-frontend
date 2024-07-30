@@ -14,6 +14,7 @@ function TeamRow({
     mutationFn: () => deleteAdmin("admin/teams/" + team.id),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ["teams"]});
+      queryClient.invalidateQueries({queryKey: ["admin", "teams"]});
     },
   });
 

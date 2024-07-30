@@ -19,3 +19,12 @@ export interface ServiceMetadata {
   last_reset: string;
   last_restart: string;
 }
+
+export interface Service {
+  id: number;
+  team_id: number;
+  challenge_id: number;
+  order: number;
+  detail: Map<string, any>;
+  secret: string;
+}

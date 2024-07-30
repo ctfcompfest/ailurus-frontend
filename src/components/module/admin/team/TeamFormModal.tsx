@@ -37,12 +37,15 @@ function TeamForm({ team, mode, teamId, onSave }: TeamFormProps) {
       mode === "new"
         ? postAdmin("admin/teams/", { json: [data] })
         : patchAdmin(`admin/teams/${teamId}`, { json: data }),
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: ["teams"] }),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["teams"] })
+        queryClient.invalidateQueries({ queryKey: ["admin","teams"] })
+      },
   });
 
   return (
     <FormProvider {...methods}>
-      <h4 className="font-bold text-xl">New Team</h4>
+      <h4 className="font-bold text-xl">{mode == "new" ? "New Team":"Edit Team"}</h4>
       <form
         onSubmit={methods.handleSubmit((data: TeamInput) => {
           const cleanedData = Object.fromEntries(
@@ -51,20 +54,24 @@ function TeamForm({ team, mode, teamId, onSave }: TeamFormProps) {
 
           updateOrCreateMutation.mutate(cleanedData as TeamInput);
           onSave?.();
+          
+          if (mode == "new") methods.reset();
         })}
       >
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text">Team ID</span>
-          </label>
-          <input
-            type="text"
-            value={teamId}
-            className="input input-bordered"
-            readOnly
-            disabled
-          />
-        </div>
+        {mode == "new" ? 
+          <></>:<div className="form-control">
+            <label className="label">
+              <span className="label-text">Team ID</span>
+            </label>
+            <input
+              type="text"
+              value={teamId}
+              className="input input-bordered"
+              readOnly
+              disabled
+            />
+          </div>
+        }
         <InputRow
           name="name"
           label="Team Name"
@@ -84,13 +91,6 @@ function TeamForm({ team, mode, teamId, onSave }: TeamFormProps) {
           type="password"
           control={methods.control}
         />
-        <InputRow
-          name="testcase"
-          label="Testcase Zip File"
-          type="file"
-          control={methods.control}
-        />
-
         <div className="flex flex-row justify-end pt-4">
           <button className="btn btn-primary" type="submit">
             Save
@@ -120,7 +120,7 @@ export default function TeamFormModal({
             team={team}
             mode={mode}
             teamId={teamId}
-            onSave={() => ref.current?.close()}
+            onSave={mode == "new" ? () => ref.current?.close():undefined}
           />
         </div>
         <form method="dialog" className="modal-backdrop">

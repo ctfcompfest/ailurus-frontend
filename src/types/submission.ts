@@ -9,6 +9,7 @@ export interface Submission {
     time_created: string;
     value: string;
     verdict: boolean;
+    point: number;
 }
 
 export interface SubmissionResponse {

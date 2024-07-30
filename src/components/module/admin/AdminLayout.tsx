@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useAtom } from "jotai";
 import { adminTokenAtom } from "@/components/states";
 import { useRouter } from "next/router";
+import useTitle from "@/components/hook/useTitle";
 
 interface ConfigMenuProps {
   icon: ReactElement<Icon>;
@@ -39,6 +40,8 @@ export default function AdminLayout({
   children,
   className,
 }: ComponentWithChildren) {
+  useTitle(`Admin Panel | Ailurus`);
+
   const [_, setAdminToken] = useAtom(adminTokenAtom);
   const router = useRouter();
   return (
@@ -63,8 +66,8 @@ export default function AdminLayout({
           />
           <ConfigMenu
             icon={<HardDrives size={24} />}
-            title="Server"
-            href="/admin/server"
+            title="Machine"
+            href="/admin/machine"
           />
           <ConfigMenu
             icon={<Flag size={24} />}

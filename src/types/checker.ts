@@ -7,7 +7,7 @@ export interface Checker {
   round: number;
   tick: number;
   time_created: string;
-  result: number;
+  status: number;
   detail: string;
 }
 

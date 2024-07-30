@@ -7,8 +7,8 @@ import { ChallengeDetail } from "@/types/challenge";
 
 type ChallengeFormAttr = Omit<ChallengeDetail, "visibility" | "description_raw"> & {
   visibility: string;
-  testcase?: File;
-  artifact?: File;
+  testcase?: FileList;
+  artifact?: FileList;
 }
 
 interface ChallengeFormProps {
@@ -25,7 +25,6 @@ function ChallengeForm({ chall, mode, challId, onSave }: ChallengeFormProps) {
   });
   const updateOrCreateMutation = useMutation({
     mutationFn: (data: ChallengeFormAttr) => {
-      console.log(data);
       const testcaseFile = data.testcase;
       const artifactFile = data.artifact;
       const cleanData = Object.fromEntries(
@@ -40,45 +39,63 @@ function ChallengeForm({ chall, mode, challId, onSave }: ChallengeFormProps) {
 
       if (mode == "new") {
         const formData = new FormData();
-        if (testcaseFile) {
-          formData.append('testcase[0]', testcaseFile);
+        if (testcaseFile?.item(0)) {
+          formData.append('testcase[0]', testcaseFile[0]);
         }
-        if (artifactFile) {
-          formData.append('artifact[0]', artifactFile);
+        if (artifactFile?.item(0)) {
+          formData.append('artifact[0]', artifactFile[0]);
         }
         formData.append("data", JSON.stringify([finalChallData]));
-        return postAdmin("admin/challenges/", { body: formData })
+        form.reset();
+        return postAdmin("admin/challenges/", { body: formData });
       }
       
+      if (testcaseFile?.item(0)) {
+        const formData = new FormData();
+        formData.append('testcase', testcaseFile[0]);
+        postAdmin(`admin/challenges/${challId}/testcase`, { body: formData });
+        form.resetField("testcase");
+      }
+
+      if (artifactFile?.item(0)) {
+        const formData = new FormData();
+        formData.append('artifact', artifactFile[0]);
+        postAdmin(`admin/challenges/${challId}/artifact`, { body: formData });
+        form.resetField("artifact");
+      }
+
       return patchAdmin(`admin/challenges/${challId}`, { json: finalChallData });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ["challenges"]});
       queryClient.invalidateQueries({queryKey: ["challenge", challId]});
+      queryClient.invalidateQueries({queryKey: ["admin", "challenges"]});
     },
   });
 
   return (
     <FormProvider {...form}>
-      <h4 className="font-bold text-xl">Challenge Edit</h4>
+      <h4 className="font-bold text-xl">{mode == "new" ? "New Challenge":"Edit Challenge"}</h4>
       <form
         onSubmit={form.handleSubmit((data) => {
           updateOrCreateMutation.mutate(data);
           onSave?.();
         })}
       >
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text">Challenge ID</span>
-          </label>
-          <input
-            type="number"
-            value={challId}
-            className="input input-bordered"
-            readOnly
-            disabled
-          />
-        </div>
+        {mode == "new" ? 
+          <></>:<div className="form-control">
+            <label className="label">
+              <span className="label-text">Challenge ID</span>
+            </label>
+            <input
+              type="number"
+              value={challId}
+              className="input input-bordered"
+              readOnly
+              disabled
+            />
+          </div>
+        }
         <InputRow
           name="slug"
           label="Slug"
@@ -169,7 +186,7 @@ export default function ChallengeFormModal({
             mode={mode}
             chall={chall}
             challId={challId}
-            onSave={() => ref.current?.close()}
+            onSave={mode=="new" ? () => ref.current?.close():undefined}
           />
         </div>
         <form method="dialog" className="modal-backdrop">
