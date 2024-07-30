@@ -2,67 +2,94 @@ import React, { useContext, useState } from "react";
 import { AdminContext } from "../AdminContext";
 import { ConfigType } from "@/types/common";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { putAdmin } from "@/components/fetcher/admin";
-import { EditConfigForm } from "./EditConfigForm";
+import { patchAdmin } from "@/components/fetcher/admin";
 
 interface ConfigProps {
   configs: ConfigType;
 }
 
-function ConfigList({ configs }: ConfigProps) {
-  return (
-    <div className="grid grid-cols-2 gap-4">
-      {Object.entries(configs).map(([key, val]) => (
-        <React.Fragment key={key}>
-          <strong>{key}:</strong>
-          <pre>{val}</pre>
-        </React.Fragment>
-      ))}
-    </div>
-  );
-}
-
 export default function ConfigPage() {
   const queryClient = useQueryClient();
   const { contestConfig } = useContext(AdminContext);
-  const [isEditing, setIsEditing] = useState(false);
+  const [editingKey, setEditingKey] = useState<string | null>(null);
+  const [editedValue, setEditedValue] = useState("");
+
   const mutateConfig = useMutation({
-    mutationFn: (data: ConfigType) =>
-      putAdmin<ConfigType>("admin/contest/config", {
+    mutationFn: ({key, value}: ConfigType) =>
+      patchAdmin<ConfigType>(`admin/configs/${key}`, {
         json: {
-          configs: data,
+          value: value,
         },
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries(["config"]);
+      queryClient.invalidateQueries({ queryKey: ["config"]});
     },
   });
 
-  return (
-    <div className="px-4">
-      <div className="flex flex-row justify-between">
-        <h2 className="pt-2 pb-4 text-2xl font-bold">Configuration</h2>
-        {!isEditing && (
-          <button
-            className="btn btn-primary"
-            onClick={() => setIsEditing(true)}
-          >
-            Edit
-          </button>
-        )}
-      </div>
+  const handleEdit = (key: string, value: string) => {
+    setEditingKey(key);
+    setEditedValue(value);
+  };
 
-      {isEditing ? (
-        <EditConfigForm
-          configs={contestConfig}
-          onSave={(newConfig) => {
-            mutateConfig.mutate(newConfig);
-            setIsEditing(false);
-          }}
-        />
-      ) : (
-        <ConfigList configs={contestConfig} />
-      )}
+  const handleSave = (key: string) => {
+    const updatedConfig = { ...contestConfig, [key]: editedValue };
+    mutateConfig.mutate({key: key, value: editedValue});
+    setEditingKey(null);
+  };
+
+  const handleCancel = () => {
+    setEditingKey(null);
+    setEditedValue("");
+  };
+
+  return (
+    <div className="px-4 mb-5">
+      <h2 className="pt-2 pb-4 text-2xl font-bold">Configuration</h2>
+      {Object.entries(contestConfig).map(([key, value]) => (
+        <div className="grid grid-cols-6 gap-4 mb-3">
+          <React.Fragment key={key}>
+            <div className="flex flex-row items-center">
+              <strong>{key}:</strong>
+            </div>
+            <div className="flex flex-row items-center col-span-4 w-full">
+              {editingKey === key ? (
+                <input
+                  className="input input-bordered w-full"
+                  value={editedValue}
+                  onChange={(e) => setEditedValue(e.target.value)}
+                />
+              ) : (
+                <pre>{value}</pre>
+              )}
+            </div>
+            <div className="flex flex-row items-center gap-2">
+              {editingKey === key ? (
+                <>
+                  <button
+                    className="btn btn-primary btn-sm"
+                    onClick={() => handleSave(key)}
+                  >
+                    Save
+                  </button>
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={handleCancel}
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => handleEdit(key, value)}
+                >
+                  Edit
+                </button>
+              )}
+            </div>
+          </React.Fragment>
+        </div>
+      ))}
     </div>
   );
 }

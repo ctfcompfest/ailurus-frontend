@@ -1,15 +1,8 @@
 import React, {
   ReactElement,
-  useContext,
-  useEffect,
   useRef,
-  useState,
 } from "react";
-import { FormProvider, useForm, useFormContext } from "react-hook-form";
-import { ServerMode } from "@/types/common";
-import { AdminContext } from "../AdminContext";
-import { Path } from "react-hook-form";
-import clsx from "clsx";
+import { FormProvider, useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postAdmin, patchAdmin } from "@/components/fetcher/admin";
 import { InputRow } from "../common/form";
@@ -17,14 +10,7 @@ import { InputRow } from "../common/form";
 type TeamInput = {
   name: string;
   email: string;
-  password: string;
-  server_id?: number;
-  server?: {
-    host: string;
-    sshport: number;
-    username: string;
-    auth_key: string;
-  };
+  password: string | undefined;
 };
 
 type TeamFormProps =
@@ -43,38 +29,42 @@ type TeamFormProps =
 
 function TeamForm({ team, mode, teamId, onSave }: TeamFormProps) {
   const queryClient = useQueryClient();
-  const { contestConfig } = useContext(AdminContext);
-  const serverMode = contestConfig["SERVER_MODE"] as ServerMode;
   const methods = useForm<TeamInput>({
     defaultValues: team,
   });
-  const [additionMethod, setAdditionMethod] = useState<"id" | "new">("id");
   const updateOrCreateMutation = useMutation({
     mutationFn: (data: TeamInput) =>
-      mode == "new"
-        ? postAdmin("admin/teams/", { json: data })
-        : patchAdmin("admin/teams/" + teamId, { json: data }),
+      mode === "new"
+        ? postAdmin("admin/teams/", { json: [data] })
+        : patchAdmin(`admin/teams/${teamId}`, { json: data }),
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ["teams"] }),
   });
-
-  useEffect(() => {
-    if (additionMethod == "new") {
-      methods.setValue("server_id", undefined);
-    } else {
-      methods.setValue("server", undefined);
-    }
-  }, [additionMethod]);
 
   return (
     <FormProvider {...methods}>
       <h4 className="font-bold text-xl">New Team</h4>
       <form
-        onSubmit={methods.handleSubmit((data) => {
-          updateOrCreateMutation.mutate(data);
-          queryClient.invalidateQueries(["teams"]);
-          methods.reset();
+        onSubmit={methods.handleSubmit((data: TeamInput) => {
+          const cleanedData = Object.fromEntries(
+            Object.entries(data).filter(([_, value]) => value !== "")
+          );
+
+          updateOrCreateMutation.mutate(cleanedData as TeamInput);
           onSave?.();
         })}
       >
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text">Team ID</span>
+          </label>
+          <input
+            type="text"
+            value={teamId}
+            className="input input-bordered"
+            readOnly
+            disabled
+          />
+        </div>
         <InputRow
           name="name"
           label="Team Name"
@@ -94,86 +84,12 @@ function TeamForm({ team, mode, teamId, onSave }: TeamFormProps) {
           type="password"
           control={methods.control}
         />
-        {serverMode == "private" && (
-          <>
-            {mode == "new" && (
-              <div className="flex flex-row gap-2 pt-4 items-center">
-                <span>Server add mode: </span>
-                <button
-                  type="button"
-                  onClick={() => setAdditionMethod("id")}
-                  className={clsx(
-                    "btn btn-sm",
-                    additionMethod == "id" && "btn-primary"
-                  )}
-                >
-                  ID
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAdditionMethod("new")}
-                  className={clsx(
-                    "btn btn-sm",
-                    additionMethod == "new" && "btn-primary"
-                  )}
-                >
-                  Name
-                </button>
-              </div>
-            )}
-            {additionMethod == "id" ? (
-              <InputRow
-                name="server_id"
-                label="Server ID"
-                errorMessage={
-                  methods.formState.errors?.server_id?.message ?? ""
-                }
-                type="text"
-                control={methods.control}
-              />
-            ) : (
-              <>
-                <InputRow
-                  name="server.host"
-                  label="Server Host"
-                  errorMessage={
-                    methods.formState.errors.server?.host?.message ?? ""
-                  }
-                  type="text"
-                  control={methods.control}
-                />
-                <InputRow
-                  name="server.sshport"
-                  label="Server SSH Port"
-                  errorMessage={
-                    methods.formState.errors.server?.sshport?.message ?? ""
-                  }
-                  type="number"
-                  control={methods.control}
-                />
-                <InputRow
-                  name="server.username"
-                  label="Server Username"
-                  errorMessage={
-                    methods.formState.errors.server?.username?.message ?? ""
-                  }
-                  type="text"
-                  control={methods.control}
-                />
-                <InputRow
-                  name="server.auth_key"
-                  label="Server Auth Key"
-                  errorMessage={
-                    methods.formState.errors.server?.auth_key?.message ?? ""
-                  }
-                  type="text"
-                  control={methods.control}
-                  textarea
-                />
-              </>
-            )}
-          </>
-        )}
+        <InputRow
+          name="testcase"
+          label="Testcase Zip File"
+          type="file"
+          control={methods.control}
+        />
 
         <div className="flex flex-row justify-end pt-4">
           <button className="btn btn-primary" type="submit">

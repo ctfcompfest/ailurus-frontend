@@ -83,7 +83,7 @@ function FilterPanel() {
                     value={challenge.id}
                     key={"chall-opt-" + challenge.id}
                   >
-                    {challenge.name}
+                    {challenge.title}
                   </option>
                 ))}
               </>
@@ -144,7 +144,7 @@ function SubmissionPanel() {
   const { isLoading, data } = useQuery({
     queryKey: ["submissions", searchParams.toString()],
     queryFn: () =>
-      getAdmin<SubmissionResponse>("admin/submission/", {
+      getAdmin<SubmissionResponse>("admin/submissions/", {
         searchParams: searchParams,
       }),
   });
@@ -173,7 +173,7 @@ function SubmissionPanel() {
             </tr>
           </thead>
           <tbody>
-            {data?.data.submissions.map((submission) => (
+            {data?.data.data?.map((submission) => (
               <SubmissionRow
                 data={submission}
                 key={"submission-" + submission.id}

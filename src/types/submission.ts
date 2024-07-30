@@ -15,5 +15,5 @@ export interface SubmissionResponse {
     next_page: number | undefined;
     prev_page: number | undefined;
     current_page: number;
-    submissions: Submission[];
+    data: Submission[];
 }

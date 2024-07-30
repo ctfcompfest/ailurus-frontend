@@ -1,44 +1,60 @@
-import { ChallengeServer } from "@/types/server";
-import React, { ReactElement, useContext, useRef } from "react";
+import React, { ReactElement, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { InputRow } from "../common/form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postAdmin, patchAdmin } from "@/components/fetcher/admin";
-import { ServerMode, guardServerMode } from "@/types/common";
-import { AdminContext } from "../AdminContext";
+import { ChallengeDetail } from "@/types/challenge";
 
-type ChallengeFormData = {
-  name: string;
-  description: string;
-  num_expose: number;
+type ChallengeFormAttr = Omit<ChallengeDetail, "visibility" | "description_raw"> & {
   visibility: string;
-  server_id?: number;
-};
+  testcase?: File;
+  artifact?: File;
+}
 
 interface ChallengeFormProps {
   mode: "new" | "update";
-  chall?: ChallengeFormData;
+  chall?: ChallengeFormAttr;
   challId?: number;
   onSave?: () => void;
 }
 
 function ChallengeForm({ chall, mode, challId, onSave }: ChallengeFormProps) {
-  const { getConfig } = useContext(AdminContext);
-  const serverMode = getConfig<ServerMode>("SERVER_MODE");
-
   const queryClient = useQueryClient();
-  const form = useForm<ChallengeFormData>({
+  const form = useForm<ChallengeFormAttr>({
     defaultValues: chall,
   });
   const updateOrCreateMutation = useMutation({
-    mutationFn: (data: ChallengeFormData) => {
-      const finalData = {
-        ...data,
+    mutationFn: (data: ChallengeFormAttr) => {
+      console.log(data);
+      const testcaseFile = data.testcase;
+      const artifactFile = data.artifact;
+      const cleanData = Object.fromEntries(
+        Object.entries(data).filter(([key, value]) => (
+          value !== "" && value != undefined && key != "testcase" && key != "artifact"
+        ))
+      );
+      const finalChallData = {
+        ...cleanData,
         visibility: data.visibility.split(",").map((val) => Number(val)),
       };
-      return mode == "new"
-        ? postAdmin("admin/challenges/", { json: finalData })
-        : patchAdmin("admin/challenges/" + challId, { json: finalData });
+
+      if (mode == "new") {
+        const formData = new FormData();
+        if (testcaseFile) {
+          formData.append('testcase[0]', testcaseFile);
+        }
+        if (artifactFile) {
+          formData.append('artifact[0]', artifactFile);
+        }
+        formData.append("data", JSON.stringify([finalChallData]));
+        return postAdmin("admin/challenges/", { body: formData })
+      }
+      
+      return patchAdmin(`admin/challenges/${challId}`, { json: finalChallData });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ["challenges"]});
+      queryClient.invalidateQueries({queryKey: ["challenge", challId]});
     },
   });
 
@@ -49,13 +65,30 @@ function ChallengeForm({ chall, mode, challId, onSave }: ChallengeFormProps) {
         onSubmit={form.handleSubmit((data) => {
           updateOrCreateMutation.mutate(data);
           onSave?.();
-          queryClient.invalidateQueries(["challenges"]);
         })}
       >
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text">Challenge ID</span>
+          </label>
+          <input
+            type="number"
+            value={challId}
+            className="input input-bordered"
+            readOnly
+            disabled
+          />
+        </div>
         <InputRow
-          name="name"
-          label="Name"
-          errorMessage={form.formState.errors.name?.message ?? ""}
+          name="slug"
+          label="Slug"
+          errorMessage={form.formState.errors.slug?.message ?? ""}
+          control={form.control}
+        />
+        <InputRow
+          name="title"
+          label="Title"
+          errorMessage={form.formState.errors.title?.message ?? ""}
           control={form.control}
         />
         <InputRow
@@ -66,10 +99,24 @@ function ChallengeForm({ chall, mode, challId, onSave }: ChallengeFormProps) {
           textarea
         />
         <InputRow
-          name="num_expose"
-          label="Number Port"
-          errorMessage={form.formState.errors.num_expose?.message ?? ""}
           type="number"
+          name="num_service"
+          label="Number Service"
+          errorMessage={form.formState.errors.num_service?.message ?? ""}
+          control={form.control}
+        />
+        <InputRow
+          type="number"
+          name="num_flag"
+          label="Number Flag"
+          errorMessage={form.formState.errors.num_flag?.message ?? ""}
+          control={form.control}
+        />
+        <InputRow
+          type="number"
+          name="point"
+          label="Point(s)"
+          errorMessage={form.formState.errors.point?.message ?? ""}
           control={form.control}
         />
         <InputRow
@@ -78,15 +125,21 @@ function ChallengeForm({ chall, mode, challId, onSave }: ChallengeFormProps) {
           errorMessage={form.formState.errors.visibility?.message ?? ""}
           control={form.control}
         />
-        {serverMode == "share" && (
-          <InputRow
-            name="server_id"
-            label="Server ID"
-            errorMessage={form.formState.errors.server_id?.message ?? ""}
-            type="number"
-            control={form.control}
-          />
-        )}
+        <InputRow
+          name="artifact"
+          label={`Artifact (zip file): ${chall?.artifact_checksum ?? ""}`}
+          type="file"
+          control={form.control}
+          errorMessage={form.formState.errors.artifact?.message ?? ""}
+        />
+
+        <InputRow
+          name="testcase"
+          label={`Testcase (zip file): ${chall?.testcase_checksum ?? ""}`}
+          type="file"
+          control={form.control}
+          errorMessage={form.formState.errors.testcase?.message ?? ""}
+        />
 
         <div className="flex flex-row justify-end pt-4">
           <button className="btn btn-primary" type="submit">
@@ -104,7 +157,7 @@ export default function ChallengeFormModal({
   btn,
   mode,
 }: ChallengeFormProps & {
-  btn: ReactElement;
+  btn: ReactElement,
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   return (
@@ -113,8 +166,8 @@ export default function ChallengeFormModal({
       <dialog className="modal" ref={ref}>
         <div className="modal-box">
           <ChallengeForm
-            chall={chall}
             mode={mode}
+            chall={chall}
             challId={challId}
             onSave={() => ref.current?.close()}
           />

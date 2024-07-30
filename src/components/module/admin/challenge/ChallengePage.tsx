@@ -1,40 +1,39 @@
-import React, { useContext } from "react";
-import { AdminContext } from "../AdminContext";
-import { ServerMode } from "@/types/common";
+import React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getUser } from "@/components/fetcher/user";
-import { Challenge } from "@/types/challenge";
-import { deleteAdmin, getAdmin, postAdmin } from "@/components/fetcher/admin";
+import { ChallengeDetail as typeChallenge } from "@/types/challenge";
+import { deleteAdmin, getAdmin } from "@/components/fetcher/admin";
 import ChallengeFormModal from "./ChallengeFormModal";
 import { Plus } from "@phosphor-icons/react";
 import ChallengeDetailModal from "./ChallengeDetailModal";
 
-function Challenge({ challenge }: { challenge: Challenge<ServerMode> }) {
+function ChallengeRow({ challenge }: { challenge: typeChallenge }) {
   const queryClient = useQueryClient();
   const deleteTeam = useMutation({
     mutationFn: () => deleteAdmin("admin/challenges/" + challenge.id),
     onSuccess: () => {
-      queryClient.invalidateQueries(["challenges"]);
+      queryClient.invalidateQueries({queryKey: ["challenges"]});
     },
   });
 
+  const updatedChall = React.useMemo(() => ({ ...challenge }), [challenge]);
+
   return (
     <div className="flex flex-row justify-between p-4 bg-neutral text-neutral-content rounded-md">
-      <strong className="font-bold">{challenge.name}</strong>
+      <strong className="font-bold">{updatedChall.title}</strong>
 
       <div className="flex flex-row gap-2">
         <ChallengeDetailModal
-          challId={challenge.id}
+          challId={updatedChall.id}
           btn={<button className="btn btn-primary btn-sm">Detail</button>}
         />
 
         <ChallengeFormModal
           mode="update"
           chall={{
-            ...challenge,
-            visibility: "",
+            ...updatedChall,
+            visibility: updatedChall.visibility.join(","),
           }}
-          challId={challenge.id}
+          challId={updatedChall.id}
           btn={<button className="btn btn-secondary btn-sm">Edit</button>}
         />
 
@@ -50,18 +49,9 @@ function Challenge({ challenge }: { challenge: Challenge<ServerMode> }) {
 }
 
 export default function ChallengePage() {
-  const queryClient = useQueryClient();
   const { isLoading, data } = useQuery({
     queryKey: ["challenges"],
-    queryFn: () => getAdmin<Challenge<ServerMode>[]>("admin/challenges/"),
-  });
-
-  const populateChalls = useMutation({
-    mutationFn: () =>
-      postAdmin("admin/challenges/populate", { json: { confirm: true } }),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["challenges"]);
-    },
+    queryFn: () => getAdmin<typeChallenge[]>("admin/challenges/"),
   });
 
   return (
@@ -78,23 +68,6 @@ export default function ChallengePage() {
         />
       </div>
 
-      <div className="bg bg-neutral rounded-md p-4 flex flex-row justify-between items-center gap-4">
-        <div className="flex flex-col gap-2">
-          <strong className="font-strong text-lg">Populate Challenges</strong>
-          <p className="text-sm">
-            Populate challenge data from the local path to the database. This
-            will overwrite all data inside the database. Challenge folder
-            structure must follow section Challenge Folder Structure.
-          </p>
-        </div>
-        <button
-          className="btn btn-primary"
-          onClick={() => populateChalls.mutate()}
-        >
-          Populate
-        </button>
-      </div>
-
       {isLoading ? (
         <div className="flex items-center justify-center">
           <span className="loading loading-spinner loading-lg"></span>
@@ -106,7 +79,7 @@ export default function ChallengePage() {
       ) : (
         <div className="flex flex-col gap-4">
           {data?.data.map((chall) => (
-            <Challenge challenge={chall} key={chall.id} />
+            <ChallengeRow challenge={chall} key={chall.id} />
           ))}
         </div>
       )}

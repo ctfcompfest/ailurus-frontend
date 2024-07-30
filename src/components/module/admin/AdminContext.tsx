@@ -23,7 +23,7 @@ export function AdminContextProvider({ children }: ComponentWithChildren) {
   const [authToken, setAuthToken] = useAtom(adminTokenAtom);
   const { isLoading, error, data, refetch } = useQuery({
     queryKey: ["config"],
-    queryFn: () => getAdmin<Record<string, string>>("admin/contest/config"),
+    queryFn: () => getAdmin<Record<string, string>>("admin/configs"),
   });
 
   useEffect(() => {

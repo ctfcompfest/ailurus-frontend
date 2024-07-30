@@ -85,7 +85,7 @@ export const patchAdmin = <T, TExtra = {}>(...args: RequestFnArguments) =>
 export const useAdminTeams = () =>
   useQuery({
     queryKey: ["admin", "teams"],
-    queryFn: () => getAdmin<Team<ServerMode>[]>("admin/teams/"),
+    queryFn: () => getAdmin<Team[]>("admin/teams/"),
   });
 
 export const useAdminChallenges = () =>

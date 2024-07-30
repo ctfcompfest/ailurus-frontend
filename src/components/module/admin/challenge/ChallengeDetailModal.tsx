@@ -1,19 +1,14 @@
 import { getAdmin } from "@/components/fetcher/admin";
 import { ChallengeDetail } from "@/types/challenge";
-import { ServerMode, guardServerMode } from "@/types/common";
 import { useQuery } from "@tanstack/react-query";
 import { InputLabel } from "../common/detail";
-import { AdminContext } from "../AdminContext";
-import { ReactElement, useContext, useRef } from "react";
+import { ReactElement, useRef } from "react";
 
-function ChallengeDetail({ challId }: { challId: number }) {
-  const { getConfig } = useContext(AdminContext);
-  const serverMode = getConfig<ServerMode>("SERVER_MODE");
-
+function ChallengeDetailRow({ challId }: { challId: number }) {
   const { isLoading, data } = useQuery({
     queryKey: ["challenges", challId],
     queryFn: () =>
-      getAdmin<ChallengeDetail<ServerMode>>("admin/challenges/" + challId),
+      getAdmin<ChallengeDetail>("admin/challenges/" + challId),
   });
 
   if (isLoading) {
@@ -37,29 +32,15 @@ function ChallengeDetail({ challId }: { challId: number }) {
     <div className="flex flex-col">
       <h4 className="font-bold text-xl pb-4">Server Detail</h4>
       <InputLabel label="ID" value={chall.id.toString()} />
-      <InputLabel label="Name" value={chall.name.toString()} />
+      <InputLabel label="Slug" value={chall.slug.toString()} />
+      <InputLabel label="Title" value={chall.title.toString()} />
       <InputLabel label="Description" value={chall.description} textarea />
-      <InputLabel label="Number Port" value={chall.num_expose.toString()} />
+      <InputLabel label="Number Service" value={chall.num_service.toString()} />
+      <InputLabel label="Number Flag" value={chall.num_flag.toString()} />
+      <InputLabel label="Point(s)" value={chall.point.toString()} />
+      <InputLabel label="Artifact Checksum" value={chall.artifact_checksum?.toString()} />
+      <InputLabel label="Testcase Checksum" value={chall.testcase_checksum?.toString()} />
       <InputLabel label="Visibility" value={chall.visibility.join(",")} />
-      {guardServerMode<ChallengeDetail<"share">>(
-        chall,
-        serverMode,
-        "share"
-      ) && (
-        <>
-          <InputLabel label="Server ID" value={chall.server_id.toString()} />
-          <InputLabel label="Server Host" value={chall.server_host} />
-        </>
-      )}
-
-      <div className="flex flex-col gap-2 pt-4">
-        <p>
-          Config status:{" "}
-          <strong className="font-bold">
-            {chall.config_status ? "OK" : "Missing"}
-          </strong>
-        </p>
-      </div>
     </div>
   );
 }
@@ -77,7 +58,7 @@ export default function ChallengeDetailModal({
       <a onClick={() => ref.current?.showModal()}>{btn}</a>
       <dialog className="modal" ref={ref}>
         <div className="modal-box">
-          <ChallengeDetail challId={challId} />
+          <ChallengeDetailRow challId={challId} />
         </div>
         <form method="dialog" className="modal-backdrop">
           <button>close</button>

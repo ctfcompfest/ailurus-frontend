@@ -8,12 +8,12 @@ export interface Checker {
   tick: number;
   time_created: string;
   result: number;
-  message: string;
+  detail: string;
 }
 
 export interface CheckerResponse {
   next_page: number | undefined;
   prev_page: number | undefined;
   current_page: number;
-  checkers: Checker[];
+  data: Checker[];
 }

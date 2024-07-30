@@ -68,7 +68,7 @@ export const putUser = <T, TExtra = {}>(...args: RequestFnArguments) =>
 export const useUserTeams = () =>
   useQuery({
     queryKey: ["teams"],
-    queryFn: () => getUser<Team<ServerMode>[]>("teams/"),
+    queryFn: () => getUser<Team[]>("teams/"),
   });
 
 export const useUserChallenges = () =>

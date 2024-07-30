@@ -3,7 +3,7 @@ export function InputLabel({
   label,
   textarea,
 }: {
-  value: string;
+  value: string | undefined;
   label: string;
   textarea?: boolean;
 }) {
@@ -13,7 +13,7 @@ export function InputLabel({
         <span className="label-text">{label}</span>
       </label>
       {textarea ? (
-        <textarea className="textarea textarea-bordered">{value}</textarea>
+        <textarea className="textarea textarea-bordered" rows={10} readOnly>{value}</textarea>
       ) : (
         <input
           type="text"

@@ -1,27 +1,24 @@
-import { getUser } from "@/components/fetcher/user";
-import { contestInfoAtom } from "@/components/states";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useAtom } from "jotai";
-import React, { useContext } from "react";
-import { AdminContext } from "../AdminContext";
-import { ServerMode } from "@/types/common";
+import React, { useMemo } from "react";
 import { Team } from "@/types/team";
 import { Plus } from "@phosphor-icons/react";
-import { deleteAdmin } from "@/components/fetcher/admin";
+import { getAdmin, deleteAdmin } from "@/components/fetcher/admin";
 import { TeamProps } from "./interface";
 import TeamFormModal from "./TeamFormModal";
-import TeamDetailModal from "./TeamDetailModal";
 
-function TeamRow<TServerMode extends ServerMode>({
+function TeamRow({
   team,
-}: TeamProps<TServerMode>) {
+}: TeamProps) {
   const queryClient = useQueryClient();
   const deleteTeam = useMutation({
     mutationFn: () => deleteAdmin("admin/teams/" + team.id),
     onSuccess: () => {
-      queryClient.invalidateQueries(["teams"]);
+      queryClient.invalidateQueries({queryKey: ["teams"]});
     },
   });
+
+  const updatedTeam = useMemo(() => ({ ...team }), [team]);
+
   return (
     <div
       className="p-4 rounded-md bg-neutral text-neutral-content flex flex-row justify-between"
@@ -29,16 +26,10 @@ function TeamRow<TServerMode extends ServerMode>({
     >
       {team.name}
       <div className="flex flex-row gap-2 items-center">
-        <TeamDetailModal
-          btn={<button className="btn btn-primary btn-sm">Detail</button>}
-          teamId={team.id}
-        />
         <TeamFormModal
           btn={<button className="btn btn-secondary btn-sm">Edit</button>}
           mode="update"
-          team={{
-            name: team.name,
-          }}
+          team={updatedTeam}
           teamId={team.id}
         />
         <button
@@ -55,12 +46,9 @@ function TeamRow<TServerMode extends ServerMode>({
 }
 
 export default function TeamPage() {
-  const { contestConfig } = useContext(AdminContext);
-  const serverMode = contestConfig["SERVER_MODE"] as ServerMode;
-
   const { isLoading, data } = useQuery({
     queryKey: ["teams"],
-    queryFn: () => getUser<Team<typeof serverMode>[]>("teams/"),
+    queryFn: () => getAdmin<Team[]>("admin/teams/"),
   });
 
   return (

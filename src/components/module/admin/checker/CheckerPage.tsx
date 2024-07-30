@@ -88,7 +88,7 @@ function FilterPanel() {
                     value={challenge.id}
                     key={"chall-opt-" + challenge.id}
                   >
-                    {challenge.name}
+                    {challenge.title}
                   </option>
                 ))}
               </>
@@ -140,7 +140,7 @@ function CheckerRow({ data }: CheckerRowProps) {
       <td>{data.team_name}</td>
       <td>{checkerResultMap[data.result] ?? "undefined"}</td>
       <td>
-        <pre>{data.message}</pre>
+        <pre>{data.detail}</pre>
       </td>
     </tr>
   );
@@ -152,7 +152,7 @@ function CheckerPanel() {
   const { isLoading, data } = useQuery({
     queryKey: ["checkers", searchParams.toString()],
     queryFn: () =>
-      getAdmin<CheckerResponse>("admin/checker/", {
+      getAdmin<CheckerResponse>("admin/checkresults/", {
         searchParams: searchParams,
       }),
   });
@@ -177,11 +177,11 @@ function CheckerPanel() {
               <th>Challenge</th>
               <th>Team</th>
               <th>Status</th>
-              <th>Message</th>
+              <th>Detail</th>
             </tr>
           </thead>
           <tbody>
-            {data?.data.checkers.map((checker) => (
+            {data?.data.data?.map((checker) => (
               <CheckerRow data={checker} key={"checker-" + checker.id} />
             ))}
           </tbody>

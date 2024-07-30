@@ -1,6 +1,5 @@
 import { getAdmin, postAdmin } from "@/components/fetcher/admin";
 import { Challenge } from "@/types/challenge";
-import { ServerMode } from "@/types/common";
 import { ServiceList } from "@/types/service";
 import { Team } from "@/types/team";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -8,7 +7,7 @@ import React from "react";
 import ConfirmModal from "../../common/Modal/ConfirmModal";
 
 interface ServiceRowProps {
-  chall: Challenge<ServerMode> | undefined;
+  chall: Challenge | undefined;
   services: Record<string, string[]>;
 }
 
@@ -94,7 +93,7 @@ function TeamServiceRow({
 function ServiceRow({ chall, services }: ServiceRowProps) {
   const { isLoading: teamsLoading, data: teamsData } = useQuery({
     queryKey: ["teams"],
-    queryFn: () => getAdmin<Team<ServerMode>[]>("admin/teams/"),
+    queryFn: () => getAdmin<Team[]>("admin/teams/"),
   });
 
   console.log(chall);
@@ -118,7 +117,7 @@ function ServiceRow({ chall, services }: ServiceRowProps) {
   return (
     <details className="p-4 rounded-md bg-neutral">
       <summary className="font-bold">
-        {chall?.name ?? "ChallengeNotFound"}
+        {chall?.title ?? "ChallengeNotFound"}
       </summary>
       <div className="flex flex-col gap-2 pl-4">
         {Object.entries(services).map(([teamId, address]) => {
@@ -148,7 +147,7 @@ export default function ServicePage() {
   });
   const { isLoading: challsLoading, data: challsData } = useQuery({
     queryKey: ["challenges"],
-    queryFn: () => getAdmin<Challenge<ServerMode>[]>("admin/challenges/"),
+    queryFn: () => getAdmin<Challenge[]>("admin/challenges/"),
     refetchInterval: false,
   });
 

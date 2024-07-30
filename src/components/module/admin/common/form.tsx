@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Control, FieldValues, Path, useFormContext } from "react-hook-form";
 
 type GetField<T> = T extends Control<infer TFields> ? TFields : never;
@@ -19,6 +20,15 @@ export function InputRow<T extends FieldValues>({
   textarea,
 }: InputRowProps<T>) {
   const { register } = useFormContext<T>();
+  const [file, setFile] = useState<File | null>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+    } else {
+      setFile(null);
+    }
+  };
 
   return (
     <div className="form-control w-full">
@@ -28,10 +38,20 @@ export function InputRow<T extends FieldValues>({
 
       {textarea ? (
         <textarea
+          rows={10}
           className="textarea textarea-bordered w-full"
           /* @ts-ignore */
           {...register(name)}
         />
+      ) : type === "file" ? (
+        <div className="flex flex-row items-center">
+          <input
+            type="file"
+            className="input"
+            /* @ts-ignore */
+            {...register(name)}
+          />
+        </div>
       ) : (
         <input
           type={type ? type : "text"}
@@ -43,7 +63,7 @@ export function InputRow<T extends FieldValues>({
 
       {errorMessage && (
         <label className="label">
-          <span className="label-text-alt">{errorMessage}</span>
+          <span className="label-text-alt text-red-500">{errorMessage}</span>
         </label>
       )}
     </div>
