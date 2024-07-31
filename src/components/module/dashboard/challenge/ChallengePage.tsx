@@ -8,7 +8,6 @@ import {
 import { authTokenAtom } from "@/components/states";
 import { parseJwt } from "@/components/utils";
 import { Challenge } from "@/types/challenge";
-import { ServerMode } from "@/types/common";
 import { Team } from "@/types/team";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAtom } from "jotai";
@@ -18,22 +17,22 @@ import Link from "next/link";
 
 interface ServiceRowProps {
   chall: Challenge | undefined;
-  services: Record<string, string[]> | undefined;
-  teams: Team<ServerMode>[] | undefined;
+  services: Record<string, string[] | Map<string, any> | string> | undefined;
+  teams: Team[] | undefined;
 }
 
 interface TeamServiceRowProps {
   teamId: number;
   challId: number;
   teamName: string;
-  addresses: string[];
+  serviceDatas: string[] | string | Map<string, any>;
   challUnlocked: boolean | undefined;
   isPrivate: boolean | undefined;
 }
 
 function TeamServiceRow({
   teamName,
-  addresses,
+  serviceDatas,
   teamId,
   challId,
   challUnlocked,
@@ -72,9 +71,13 @@ function TeamServiceRow({
           </span>
         </div>
         <ul className="list-inside">
-          {addresses.map((addr) => (
-            <li key={addr}>{addr}</li>
-          ))}
+          {serviceDatas == null || serviceDatas == undefined ? <></>:
+            typeof serviceDatas === "string" ? serviceDatas:
+            typeof Array.isArray(serviceDatas) ? Array.from(serviceDatas as string[]).map((data, index) => (
+                typeof data === "string" ? <li key={index}>{data}</li>:<li key={index}>{JSON.stringify(data)}</li>
+              )):
+              JSON.stringify(serviceDatas)
+          }
         </ul>
       </div>
       <div>
@@ -132,7 +135,7 @@ function ServiceRow({ chall, services, teams }: ServiceRowProps) {
   });
 
   const parsedJwt = useMemo(
-    () => parseJwt<{ sub: { team: Team<"share"> } }>(authToken),
+    () => parseJwt<{ sub: { team: Team } }>(authToken),
     [authToken]
   );
 
@@ -183,11 +186,11 @@ function ServiceRow({ chall, services, teams }: ServiceRowProps) {
         <strong className="font-bold text-lg pt-4">Services:</strong>
         {Object.entries(services ?? {})
           .filter((data) => data[0] == parsedJwt?.sub.team.id.toString())
-          .map(([teamId, address]) => {
+          .map(([teamId, serviceDatas]) => {
             const team = teamsData.find((team) => team.id === Number(teamId));
             return (
               <TeamServiceRow
-                addresses={address}
+                serviceDatas={serviceDatas}
                 challId={chall?.id ?? 0}
                 teamId={team?.id ?? 0}
                 teamName={team?.name ?? "TeamNotFound"}
@@ -205,13 +208,13 @@ function ServiceRow({ chall, services, teams }: ServiceRowProps) {
             </strong>
             {Object.entries(services ?? {})
               .filter((data) => data[0] != parsedJwt?.sub.team.id.toString())
-              .map(([teamId, address]) => {
+              .map(([teamId, serviceDatas]) => {
                 const team = teamsData.find(
                   (team) => team.id === Number(teamId)
                 );
                 return (
                   <TeamServiceRow
-                    addresses={address}
+                    serviceDatas={serviceDatas}
                     challId={chall?.id ?? 0}
                     teamId={team?.id ?? 0}
                     teamName={team?.name ?? "TeamNotFound"}
