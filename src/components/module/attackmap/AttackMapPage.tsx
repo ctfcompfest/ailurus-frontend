@@ -11,7 +11,7 @@ import { useAtom } from "jotai";
 import { attackMarkerAtom } from "@/components/states";
 import { randomColor } from "./utils";
 
-function teamIdTransform(srcId: number, data?: Team<ServerMode>[]) {
+function teamIdTransform(srcId: number, data?: Team[]) {
   if (data == undefined) return -1;
   for (var i = 0; i < data.length; i++) {
     if (data[i].id == srcId) return i;

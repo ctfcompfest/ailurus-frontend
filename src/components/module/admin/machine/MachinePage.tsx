@@ -65,7 +65,7 @@ export default function MachinePage() {
         />
       </div>
       <p className="text-sm mb-3">
-        List of machine, cloud services, API endpoint, or any other things to provision and manage team's services.
+        List of machine, cloud services, API endpoint, or any other things to provision and manage team&apos;s services.
       </p>
       
       {isLoading ? (

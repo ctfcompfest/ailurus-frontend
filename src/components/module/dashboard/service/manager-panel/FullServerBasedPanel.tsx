@@ -70,7 +70,7 @@ export default function FullServerBasedPanel({ chall, isUnlocked }: TeamChallSer
             <>
               {credsQuery.data ?
                 Object.entries(credsQuery.data?.data).map(([key, value]) => (
-                  <div className="my-2">
+                  <div className="my-2" key={key}>
                     <strong className="gap-2">{key}:</strong>
                     <pre className="p-4 rounded-md bg-base-300">
                       {typeof value === 'string' ? value:JSON.stringify(value, null, 2)}

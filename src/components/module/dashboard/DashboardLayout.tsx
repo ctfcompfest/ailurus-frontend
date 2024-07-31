@@ -40,7 +40,7 @@ export default function DashboardLayout({
   const router = useRouter();
 
   const parsedJwt = useMemo(
-    () => parseJwt<{ sub: { team: Team<"share"> } }>(authToken),
+    () => parseJwt<{ sub: { team: Team } }>(authToken),
     [authToken]
   );
 

@@ -33,8 +33,8 @@ export default function ServiceDetailModal({
             </div>
           ) : (
             <div className="flex flex-col gap-4">
-              {data?.data.map((service) => (
-                <div className="mb-3">
+              {data?.data.map((service, index) => (
+                <div className="mb-3" key={`svcdetail-${index}`}>
                   <strong>{`Service #${service.order}`}</strong>
                   <pre>{JSON.stringify(service, null, 2)}</pre>
                 </div>

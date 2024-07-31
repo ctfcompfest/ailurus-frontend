@@ -45,8 +45,8 @@ export default function ConfigPage() {
     <div className="px-4 mb-5">
       <h2 className="pt-2 pb-4 text-2xl font-bold">Configuration</h2>
       {Object.entries(contestConfig).map(([key, value]) => (
-        <div className="grid grid-cols-6 gap-4 mb-3">
-          <React.Fragment key={key}>
+        <div className="grid grid-cols-6 gap-4 mb-3" key={key}>
+          <React.Fragment>
             <div className="flex flex-row items-center">
               <strong>{key}:</strong>
             </div>

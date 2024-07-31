@@ -3,7 +3,7 @@ import { Team } from "@/types/team";
 import { getCoordinates } from "./utils";
 
 interface AttackMapPanelProps {
-  teamData?: Team<ServerMode>[];
+  teamData?: Team[];
 }
 
 interface AttackMapPointProps {

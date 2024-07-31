@@ -1,6 +1,35 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+<p align="center">
+    <img src="./docs/logo.png" width="200">
+</p>
 
-## Getting Started
+# Ailurus Frontend
+Ailurus frontend is a frontend for the Ailurus Platform. It consists of team dashboard and admin panel. Ailurus frontend is build using [Next.js](https://nextjs.org/), so it is easy to customize if needed.
+
+Check the repository [ctfcompfest/ailurus-backend](https://github.com/ctfcompfest/ailurus-backend) for the backend service.
+
+## Features
+1. Public leaderboard
+2. Attack map
+3. Team dashboard
+4. Admin panel:
+    - Challenge management
+    - Team management
+    - Contest configuration panel
+    - Submission logs
+    - Checker logs
+    - and a lot more...
+
+## Deployment
+
+1. Update `.env` file to match your configuration.
+    - `NEXT_PUBLIC_API_BASEURL`: Base URL for Ailurus backend api endpoints.
+    - `NEXT_PUBLIC_API_SOCKET`: Base URL for Ailurus socket.io backend. Normally it equals to your hostname for the backend service.
+    - `NEXT_PUBLIC_API_HOSTNAME`: Hostname the frontend will be deployed to.
+    - `NEXT_PUBLIC_API_SERVICE_MANAGE_PANEL`: It has two possible value: `fullserver` or `patch`.
+2. After that you can follow deployment steps from the [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying). Choose deployment method that supports dynamic routing, such as Node.js server or docker container method.
+3. To access admin page, visit `/admin` endpoint.
+
+## Development
 
 First, run the development server:
 
@@ -21,18 +50,3 @@ You can start editing the page by modifying `pages/index.tsx`. The page auto-upd
 The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
