@@ -13,9 +13,9 @@ function ServiceRow({chall, team} : {chall: Challenge, team: Team}) {
         json: { confirm: true },
       }),
   });
-  const restartMutation = useMutation({
+  const deleteMutation = useMutation({
     mutationFn: () =>
-      postAdmin(`admin/teams/${team.id}/challenges/${chall.id}/service-manager/?action=restart`, {
+      postAdmin(`admin/teams/${team.id}/challenges/${chall.id}/service-manager/?action=delete`, {
         json: { confirm: true },
       }),
   });
@@ -53,20 +53,20 @@ function ServiceRow({chall, team} : {chall: Challenge, team: Team}) {
           will be <u>provisioned</u>. Are you sure?
         </ConfirmModal>
         <ConfirmModal
-          action="restart"
-          btn={<button className="btn btn-primary btn-sm">Restart</button>}
-          onAction={() => restartMutation.mutate()}
-        >
-          Service for team <strong>{team.name}</strong> in challenge <strong>{chall.title}</strong>&nbsp;
-          will be <u>restarted</u>. Are you sure?
-        </ConfirmModal>
-        <ConfirmModal
           action="reset"
-          btn={<button className="btn btn-error btn-sm">Reset</button>}
+          btn={<button className="btn btn-warning btn-sm">Reset</button>}
           onAction={() => resetMutation.mutate()}
         >
           Service for team <strong>{team.name}</strong> in challenge <strong>{chall.title}</strong>&nbsp;
           will be <u>reset</u>. Are you sure?
+        </ConfirmModal>
+        <ConfirmModal
+          action="delete"
+          btn={<button className="btn btn-error btn-sm">Delete</button>}
+          onAction={() => deleteMutation.mutate()}
+        >
+          Service for team <strong>{team.name}</strong> in challenge <strong>{chall.title}</strong>&nbsp;
+          will be <u>deleted</u>. Are you sure?
         </ConfirmModal>
       </div>
     </div>
