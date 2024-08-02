@@ -73,7 +73,7 @@ export default function PatchBasedPanel({ chall, isUnlocked }: TeamChallServiceP
                 ? "Loading..."
                 : statusQuery.error
                 ? "An error occured"
-                : statusQuery.data?.data == 0
+                : (statusQuery.data?.data?.status == 0 || statusQuery.data?.data?.status == undefined)
                 ? faultyDisplay
                 : validDisplay}
             </span>{" "}

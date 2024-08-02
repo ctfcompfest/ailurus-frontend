@@ -90,7 +90,7 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
                     const serviceState =
                       userResourcesQuery.datas.serviceStatus.data[
                         chall.id.toString()
-                      ]?.[team.id.toString()];
+                      ]?.[team.id.toString()]?.status ?? 1;
                     return (
                       <td key={chall.id}>
                         <div className="flex flex-col font-mono text-base">

@@ -39,7 +39,7 @@ function TeamServiceRow({
   isPrivate,
 }: TeamServiceRowProps) {
   const { isFetching: statusFetching, data: status } = useUserServicesStatus();
-  const state = status?.data[challId.toString()]?.[teamId.toString()];
+  const state = status?.data[challId.toString()]?.[teamId.toString()]?.status;
 
   const faultyDisplay = (
     <span className="text-error items-center gap-2">

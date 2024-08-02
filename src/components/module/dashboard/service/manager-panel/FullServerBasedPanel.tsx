@@ -54,7 +54,7 @@ export default function FullServerBasedPanel({ chall, isUnlocked }: TeamChallSer
                 ? "Loading..."
                 : statusQuery.error
                 ? "An error occured"
-                : statusQuery.data?.data == 0
+                : (statusQuery.data?.data?.status == 0 || statusQuery.data?.data?.status == undefined)
                 ? faultyDisplay
                 : validDisplay}
             </span>{" "}
