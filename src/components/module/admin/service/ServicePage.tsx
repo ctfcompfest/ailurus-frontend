@@ -45,7 +45,7 @@ function ServiceRow({chall, team} : {chall: Challenge, team: Team}) {
           }
         />
         <ConfirmModal
-          action="provision"
+          action="Provision"
           btn={<button className="btn btn-accent btn-sm">Provision</button>}
           onAction={() => provisionMutation.mutate()}
         >
@@ -53,7 +53,7 @@ function ServiceRow({chall, team} : {chall: Challenge, team: Team}) {
           will be <u>provisioned</u>. Are you sure?
         </ConfirmModal>
         <ConfirmModal
-          action="reset"
+          action="Reset"
           btn={<button className="btn btn-warning btn-sm">Reset</button>}
           onAction={() => resetMutation.mutate()}
         >
@@ -61,7 +61,7 @@ function ServiceRow({chall, team} : {chall: Challenge, team: Team}) {
           will be <u>reset</u>. Are you sure?
         </ConfirmModal>
         <ConfirmModal
-          action="delete"
+          action="Delete"
           btn={<button className="btn btn-error btn-sm">Delete</button>}
           onAction={() => deleteMutation.mutate()}
         >
