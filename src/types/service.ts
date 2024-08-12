@@ -7,7 +7,7 @@ export type ServiceList = Record<ChallengeKey, Record<TeamKey, Address[]>>;
 type Faulty = 0;
 type Valid = 1;
 export type ServerState = {
-  detail: Map<string, string>;
+  detail: string;
   status: Faulty | Valid;
 }
 

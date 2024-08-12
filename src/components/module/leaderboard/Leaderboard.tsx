@@ -42,6 +42,8 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
       </div>
     );
   }
+  
+  const capitalizeWords = (str: string) => str.replace(/\b\w/g, c => c.toUpperCase());
 
   return (
     <div className={className}>
@@ -80,7 +82,7 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
                   <td>
                     <div className="flex flex-col gap-2">
                       <strong className="font-bold">{team.name}</strong>
-                      <span title="Total Score">{team.total_score.toFixed(2)}</span>
+                      {/* <span title="Total Score">{team.total_score.toFixed(2)}</span> */}
                     </div>
                   </td>
 
@@ -91,6 +93,9 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
                       userResourcesQuery.datas.serviceStatus.data[
                         chall.id.toString()
                       ]?.[team.id.toString()]?.status ?? 1;
+                    const serviceStateDetail = userResourcesQuery.datas.serviceStatus.data[
+                        chall.id.toString()
+                      ]?.[team.id.toString()]?.detail;
                     return (
                       <td key={chall.id}>
                         <div className="flex flex-col font-mono text-base">
@@ -125,20 +130,42 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
                               serviceState === 1 ? "text-success" : "text-error"
                             )}
                           >
-                            <span title="SLA">
-                              {challScore.sla ?? "100%"}
-                            </span>
                             <span
                               title="State"
                               className="flex flex-row gap-1 items-center"
                             >
                               {serviceState === 0 ? (
                                 <>
-                                  <ArrowDown /> Faulty
+                                  <ArrowDown />
                                 </>
                               ) : (
                                 <>
-                                  <ArrowUp /> Valid
+                                  <ArrowUp />
+                                </>
+                              )}
+                            </span>
+                            <span title="SLA">
+                              {challScore.sla ?? "100%"}
+                            </span>
+                          </div>
+
+                          <div
+                            className={clsx(
+                              "flex flex-row items-center gap-2",
+                              serviceState === 1 ? "text-success" : "text-error"
+                            )}
+                          >
+                            <span
+                              title="State"
+                              className="flex flex-row gap-1 items-center"
+                            >
+                              {serviceState === 1 ? (
+                                <>
+                                  {serviceStateDetail ? capitalizeWords(serviceStateDetail):"Valid"}
+                                </>
+                              ) : (
+                                <>
+                                  {serviceStateDetail ? capitalizeWords(serviceStateDetail):"Faulty"}
                                 </>
                               )}
                             </span>

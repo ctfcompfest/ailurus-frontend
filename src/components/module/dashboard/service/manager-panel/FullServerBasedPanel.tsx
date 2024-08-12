@@ -30,16 +30,21 @@ export default function FullServerBasedPanel({ chall, isUnlocked }: TeamChallSer
         }),
     });
 
-    const faultyDisplay = (
+    const capitalizeWords = (str: string) => {
+      console.log(str);
+      return str.replace(/\b\w/g, c => c.toUpperCase())
+    };
+    
+    const faultyDisplay = (statusDetail: string | undefined) => (
       <span className="text-error items-center gap-2">
-        <ArrowDown size={20} className="inline" />
-        {" Faulty"}
+        <ArrowDown size={20} className="inline" />&nbsp;
+        {typeof statusDetail === "string" ? capitalizeWords(statusDetail):"Faulty"}
       </span>
     );
-    const validDisplay = (
+    const validDisplay = (statusDetail: string | undefined) => (
       <span className="text-success items-center gap-2">
-        <ArrowUp size={20} className="inline" />
-        {" Valid"}
+        <ArrowUp size={20} className="inline" />&nbsp;
+        {typeof statusDetail === "string" ? capitalizeWords(statusDetail):"Valid"}
       </span>
     );
   
@@ -71,8 +76,8 @@ export default function FullServerBasedPanel({ chall, isUnlocked }: TeamChallSer
                 : statusQuery.error
                 ? "An error occured"
                 : (statusQuery.data?.data?.status == 0 || statusQuery.data?.data?.status == undefined)
-                ? faultyDisplay
-                : validDisplay}
+                ? faultyDisplay(statusQuery.data?.data?.detail)
+                : validDisplay(statusQuery.data?.data?.detail)}
             </span>{" "}
             ]{"  "}
             {chall?.title ?? "ChallengeNotFound"}{" "}

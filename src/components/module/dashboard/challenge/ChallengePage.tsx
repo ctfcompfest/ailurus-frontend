@@ -40,17 +40,20 @@ function TeamServiceRow({
 }: TeamServiceRowProps) {
   const { isFetching: statusFetching, data: status } = useUserServicesStatus();
   const state = status?.data[challId.toString()]?.[teamId.toString()]?.status;
+  const stateDetail = status?.data[challId.toString()]?.[teamId.toString()]?.detail;
 
-  const faultyDisplay = (
+  const capitalizeWords = (str: string) => str.replace(/\b\w/g, c => c.toUpperCase());
+    
+  const faultyDisplay = (statusDetail: string | undefined) => (
     <span className="text-error items-center gap-2">
-      <ArrowDown size={20} className="inline" />
-      {" Faulty"}
+      <ArrowDown size={20} className="inline" />&nbsp;
+      {statusDetail ? capitalizeWords(statusDetail):"Faulty"}
     </span>
   );
-  const validDisplay = (
+  const validDisplay = (statusDetail: string | undefined) => (
     <span className="text-success items-center gap-2">
-      <ArrowUp size={20} className="inline" />
-      {" Valid"}
+      <ArrowUp size={20} className="inline" />&nbsp;
+      {statusDetail ? capitalizeWords(statusDetail):"Valid"}
     </span>
   );
 
@@ -66,8 +69,8 @@ function TeamServiceRow({
             {statusFetching
               ? "Fetching..."
               : state === 0
-              ? faultyDisplay
-              : validDisplay}
+              ? faultyDisplay(stateDetail)
+              : validDisplay(stateDetail)}
           </span>
         </div>
         <ul className="list-inside">
