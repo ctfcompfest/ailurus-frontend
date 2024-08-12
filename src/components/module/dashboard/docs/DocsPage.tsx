@@ -14,27 +14,27 @@ function useDocs() {
     queryKey: ["apiDoc"],
     queryFn: () => getUser<string>("docs/api"),
   });
-  const { data: patchDoc } = useQuery({
-    queryKey: ["patchDoc"],
-    queryFn: () => getUser<string>("docs/patching"),
+  const { data: vpnDoc } = useQuery({
+    queryKey: ["vpnDoc"],
+    queryFn: () => getUser<string>("docs/vpn"),
   });
   const { data: scoreDoc } = useQuery({
     queryKey: ["scoreDoc"],
     queryFn: () => getUser<string>("docs/scoring"),
   });
-  return { apiDoc, patchDoc, scoreDoc };
+  return { apiDoc, vpnDoc, scoreDoc };
 }
 
 export default function DocsPage() {
-  const { apiDoc, patchDoc, scoreDoc } = useDocs();
+  const { apiDoc, vpnDoc, scoreDoc } = useDocs();
 
   const docsMenu: { [index: string]: DocsInterface } = useMemo(
     () => ({
       api: { label: "API", content: apiDoc?.data ?? "" },
-      patching: { label: "Patching", content: patchDoc?.data ?? "" },
+      patching: { label: "VPN", content: vpnDoc?.data ?? "" },
       scoring: { label: "Scoring", content: scoreDoc?.data ?? "" },
     }),
-    [apiDoc, patchDoc, scoreDoc]
+    [apiDoc, vpnDoc, scoreDoc]
   );
 
   const [menuActive, setMenuActive] = useState("api");
