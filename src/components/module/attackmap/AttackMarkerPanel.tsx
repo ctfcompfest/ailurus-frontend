@@ -5,6 +5,8 @@ import { useAtom } from "jotai";
 import { attackMarkerAtom } from "@/components/states";
 import { getCoordinates, generateControlPoints } from "./utils";
 
+const soundEffectFile = "/sounds/laser-gun.mp3"
+
 interface AttackMarkerPanelProps {
   markerData: AttackMarker[];
   teamLen: number;
@@ -39,6 +41,11 @@ function AttackMarkerLine({
       pathLength: [0, 1],
       transition: { duration: 0.5 },
     });
+    const soundEffect = new Audio(soundEffectFile);
+    soundEffect.play().catch(e => {
+      console.log("[Error] Error occured when playing audio.", e)
+    });
+
   }, [showMarker]);
   useEffect(() => {
     hideMarker.start({
