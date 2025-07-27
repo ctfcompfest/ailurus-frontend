@@ -4,6 +4,9 @@ export interface ChallengeScore {
   attack: number;
   defense: number;
   sla: number;
+  attack_group_score: number;
+  defense_group_score: number;
+  sla_group_score: number;
 }
 
 export interface Score {
