@@ -1,5 +1,6 @@
 import { getAdmin } from "@/components/fetcher/admin";
 import { getUser, usePublicResources } from "@/components/fetcher/user";
+import { Challenge } from "@/types/challenge";
 import { ChallengeScore, Score } from "@/types/scoreboard";
 import {
   ArrowDown,
@@ -23,8 +24,8 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
     queryKey: ["leaderboard", isAdmin ? "admin" : "user"],
     queryFn: () =>
       isAdmin
-        ? getAdmin<Score[]>("admin/leaderboard/")
-        : getUser<Score[], { is_freeze: boolean }>("leaderboard/"),
+        ? getAdmin<Score[], { challenges: Challenge[] }>("admin/leaderboard/")
+        : getUser<Score[], { is_freeze: boolean, challenges: Challenge[] }>("leaderboard/"),
   });
 
   if (userResourcesQuery.isLoading || scoreboardQuery.isLoading) {
@@ -68,7 +69,7 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
               <tr>
                 <th></th>
                 <th>Team</th>
-                {userResourcesQuery.datas.challenges.data.map((chall) => (
+                {scoreboardQuery.data?.challenges.map((chall) => (
                   <th key={chall.id} className="w-40">
                     {chall.title}
                   </th>
@@ -86,7 +87,7 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
                     </div>
                   </td>
 
-                  {userResourcesQuery.datas.challenges.data.map((chall) => {
+                  {scoreboardQuery.data?.challenges.map((chall) => {
                     const challScore: ChallengeScore | undefined =
                       team.challenges[chall.id.toString()];
                     const serviceState =
@@ -103,14 +104,14 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
                             className="flex flex-row items-center gap-2"
                             title="Attack Score"
                           >
-                            <Skull /> {challScore.attack ?? "0%"}
+                            <Skull /> {challScore.attack ?? "0"}%
                           </span>
 
                           <span
                             className="flex flex-row items-center gap-2"
                             title="Defend Score"
                           >
-                            <ShieldPlus /> {challScore.defense ?? "100%"}
+                            <ShieldPlus /> {challScore.defense ?? "100"}%
                           </span>
 
                           <div className="flex flex-row items-center gap-2">
@@ -145,7 +146,7 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
                               )}
                             </span>
                             <span title="SLA">
-                              {challScore.sla ?? "100%"}
+                              {challScore.sla ?? "100"}%
                             </span>
                           </div>
 
