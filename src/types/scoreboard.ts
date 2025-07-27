@@ -1,9 +1,9 @@
 export interface ChallengeScore {
   flag_captured: number;
   flag_stolen: number;
-  attack: string;
-  defense: string;
-  sla: string;
+  attack: number;
+  defense: number;
+  sla: number;
 }
 
 export interface Score {

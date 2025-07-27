@@ -104,14 +104,14 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
                             className="flex flex-row items-center gap-2"
                             title="Attack Score"
                           >
-                            <Skull /> {challScore.attack ?? "0%"}
+                            <Skull /> {challScore.attack ?? "0"}%
                           </span>
 
                           <span
                             className="flex flex-row items-center gap-2"
                             title="Defend Score"
                           >
-                            <ShieldPlus /> {challScore.defense ?? "100%"}
+                            <ShieldPlus /> {challScore.defense ?? "100"}%
                           </span>
 
                           <div className="flex flex-row items-center gap-2">
@@ -146,7 +146,7 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
                               )}
                             </span>
                             <span title="SLA">
-                              {challScore.sla ?? "100%"}
+                              {challScore.sla ?? "100"}%
                             </span>
                           </div>
 
