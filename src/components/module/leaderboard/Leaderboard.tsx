@@ -83,7 +83,7 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
                   <td>
                     <div className="flex flex-col gap-2">
                       <strong className="font-bold">{team.name}</strong>
-                      {/* <span title="Total Score">{team.total_score.toFixed(2)}</span> */}
+                      <span title="Total Score">{team.total_score.toFixed(2)}</span>
                     </div>
                   </td>
 
@@ -104,14 +104,16 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
                             className="flex flex-row items-center gap-2"
                             title="Attack Score"
                           >
-                            <Skull />  {challScore.attack_group_score} {`[${challScore.attack ?? "100"}]`}
+                            {/* <Skull />  {challScore.attack_group_score} {`[${challScore.attack ?? "100"}]`} */}
+                            <Skull /> {challScore.attack ?? "100"}
                           </span>
 
                           <span
                             className="flex flex-row items-center gap-2"
                             title="Defend Score"
                           >
-                            <ShieldPlus /> {challScore.defense_group_score} {`[${challScore.defense ?? "100"}]`}
+                            {/* <ShieldPlus /> {challScore.defense_group_score} {`[${challScore.defense ?? "100"}]`} */}
+                            <ShieldPlus /> {challScore.defense ?? "100"}
                           </span>
 
                           <div className="flex flex-row items-center gap-2">
@@ -145,8 +147,11 @@ export default function Leaderboard({ isAdmin, className }: LeaderboardProps) {
                                 </>
                               )}
                             </span>
-                            <span title="SLA">
+                            {/* <span title="SLA">
                                {challScore.sla_group_score} {`[${challScore.sla ?? "100"}]`}
+                            </span> */}
+                            <span title="SLA">
+                              {challScore.sla ?? "100"}
                             </span>
                           </div>
 

@@ -2,7 +2,9 @@ import React, { useContext, useState } from "react";
 import { AdminContext } from "../AdminContext";
 import { ConfigType } from "@/types/common";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { patchAdmin } from "@/components/fetcher/admin";
+import { patchAdmin, postAdmin } from "@/components/fetcher/admin";
+import { Plus } from "@phosphor-icons/react";
+import ConfirmModal from "../../common/Modal/ConfirmModal";
 
 interface ConfigProps {
   configs: ConfigType;
@@ -40,10 +42,26 @@ export default function ConfigPage() {
     setEditingKey(null);
     setEditedValue("");
   };
+  
+  const resetGameMutation = useMutation({
+    mutationFn: () =>
+      postAdmin(`admin/contests/reset-game/`, {
+        json: { confirm: true },
+      }),
+  });
 
   return (
     <div className="px-4 mb-5">
-      <h2 className="pt-2 pb-4 text-2xl font-bold">Configuration</h2>
+      <div className="flex flex-row justify-between mb-4">
+        <h2 className="pt-2 pb-4 text-2xl font-bold">Configuration</h2>
+        <ConfirmModal
+          action="Reset"
+          btn={<button className="btn btn-error">Reset Game Data</button>}
+          onAction={() => resetGameMutation.mutate()}
+        >
+          Flag, submission, game progress will be <u>deleted</u>. Are you sure?
+        </ConfirmModal>
+      </div>
       {Object.entries(contestConfig).map(([key, value]) => (
         <div className="grid grid-cols-7 gap-4 mb-3" key={key}>
           <React.Fragment>
