@@ -39,6 +39,13 @@ function ServiceRow({chall, team} : {chall: Challenge, team: Team}) {
   });
 
 
+  const dryRunMutation = useMutation({
+    mutationFn: () =>
+      postAdmin(`admin/contests/dry-run/`, {
+        json: { challenges: [chall.id], teams: [team.id] },
+      }),
+  });
+
   return (
     <div
       className="p-4 rounded-md bg-neutral text-neutral-content flex flex-row justify-between items-center my-2"
@@ -72,6 +79,14 @@ function ServiceRow({chall, team} : {chall: Challenge, team: Team}) {
         >
           Service for team <strong>{team.name}</strong> in challenge <strong>{chall.title}</strong>&nbsp;
           will be <u>provisioned</u>. Are you sure?
+        </ConfirmModal>
+        <ConfirmModal
+          action="Execute"
+          btn={<button className="btn btn-primary btn-sm">Dry Run</button>}
+          onAction={() => dryRunMutation.mutate()}
+        >
+          Dry run for team <strong>{team.name}</strong> in challenge <strong>{chall.title}</strong>&nbsp;
+          will be <u>executed</u>. Are you sure?
         </ConfirmModal>
         <ConfirmModal
           action="Reset"
