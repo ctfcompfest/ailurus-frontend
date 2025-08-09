@@ -6,7 +6,7 @@ import React from "react";
 import ConfirmModal from "../../common/Modal/ConfirmModal";
 import ServiceDetailModal from "./ServiceDetailModal";
 
-function ServiceRow({chall, team} : {chall: Challenge, team: Team}) {
+function ServiceRow({chall, team, service_idx} : {chall: Challenge, team: Team, service_idx: number}) {
   const resetMutation = useMutation({
     mutationFn: () =>
       postAdmin(`admin/teams/${team.id}/challenges/${chall.id}/service-manager/?action=reset`, {
@@ -42,23 +42,27 @@ function ServiceRow({chall, team} : {chall: Challenge, team: Team}) {
       </div>
 
       <div className="flex flex-row gap-2 items-center">
-        <ServiceDetailModal
-          challId={chall.id}
-          teamId={team.id}
-          btn={
-            <button className="btn btn-black-500 btn-sm">
-              See detail
-            </button>
-          }
-        />
-        <ConfirmModal
-          action="Provision"
-          btn={<button className="btn btn-accent btn-sm">Provision</button>}
-          onAction={() => provisionMutation.mutate()}
-        >
-          Service for team <strong>{team.name}</strong> in challenge <strong>{chall.title}</strong>&nbsp;
-          will be <u>provisioned</u>. Are you sure?
-        </ConfirmModal>
+        { process.env.NEXT_PUBLIC_SERVICE_MANAGE_PANEL === "fullserver" && service_idx === 0 &&
+        <>
+          <ServiceDetailModal
+            challId={chall.id}
+            teamId={team.id}
+            btn={
+              <button className="btn btn-black-500 btn-sm">
+                See detail
+              </button>
+            }
+          />
+          <ConfirmModal
+            action="Provision"
+            btn={<button className="btn btn-accent btn-sm">Provision</button>}
+            onAction={() => provisionMutation.mutate()}
+          >
+            Service for team <strong>{team.name}</strong> in challenge <strong>{chall.title}</strong>&nbsp;
+            will be <u>provisioned</u>. Are you sure?
+          </ConfirmModal>
+        </>
+      }
         <ConfirmModal
           action="Execute"
           btn={<button className="btn btn-primary btn-sm">Dry Run</button>}
@@ -88,14 +92,32 @@ function ServiceRow({chall, team} : {chall: Challenge, team: Team}) {
   );
 }
 
-function ChallengeServicesSection({chall, teams}: {chall: Challenge, teams: Team[] | undefined}) {
+function ChallengeServicesSection({chall, teams, service_idx}: {chall: Challenge, teams: Team[] | undefined, service_idx: number}) {
+  let team_master_id = -1;
+  if (teams) team_master_id = teams[0].id;
+
+  const infraProvisionMutation = useMutation({
+    mutationFn: () =>
+      postAdmin(`admin/teams/${team_master_id}/challenges/${chall.id}/service-manager/?action=provision`, {
+        json: { confirm: true },
+      }),
+  });
+
   return(
     <div className="my-5">
       <div className="rounded-md p-2 my-2 flex flex-row justify-between items-center gap-4">
         <strong className="font-strong text-lg">{chall.title}</strong>
+        { process.env.NEXT_PUBLIC_SERVICE_MANAGE_PANEL === "fullserver" && service_idx === 0 &&
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={() => infraProvisionMutation.mutate()}
+          >
+            Provision Infrastructure
+          </button>
+        }
       </div>
       {teams?.map(team => (
-        <ServiceRow chall={chall} team={team} key={`servicerow-${team.id}-${chall.id}`}/>
+        <ServiceRow chall={chall} team={team} service_idx={service_idx} key={`servicerow-${team.id}-${chall.id}`}/>
       ))}
     </div>
   )
@@ -140,9 +162,8 @@ export default function ServicePage() {
           Provision All
         </button>
       </div>
-
-      {challenges?.data.map((chall) => (
-        <ChallengeServicesSection chall={chall} teams={teams?.data} key={`challsection-${chall.id}`} />
+      {challenges?.data.map((chall, idx) => (
+        <ChallengeServicesSection chall={chall} teams={teams?.data} service_idx={idx} key={`challsection-${chall.id}`} />
       ))}
     </div>
   );
