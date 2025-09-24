@@ -14,6 +14,8 @@ export default function AttackMap() {
               "Event Finished!"
             ) : contest.event_status === "not started" ? (
               "Not Started"
+            ): contest.event_status === "defense phase" ? (
+              "Defense Phase"
             ) : contest.event_status === "running" ? (
               <>
                 {contest.number_round > 1

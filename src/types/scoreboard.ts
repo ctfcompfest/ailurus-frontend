@@ -1,9 +1,12 @@
 export interface ChallengeScore {
   flag_captured: number;
   flag_stolen: number;
-  attack: string;
-  defense: string;
-  sla: string;
+  attack: number;
+  defense: number;
+  sla: number;
+  attack_group_score: number;
+  defense_group_score: number;
+  sla_group_score: number;
 }
 
 export interface Score {

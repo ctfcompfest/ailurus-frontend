@@ -39,6 +39,13 @@ function ServiceRow({chall, team} : {chall: Challenge, team: Team}) {
   });
 
 
+  const dryRunMutation = useMutation({
+    mutationFn: () =>
+      postAdmin(`admin/contests/dry-run/`, {
+        json: { challenges: [chall.id], teams: [team.id] },
+      }),
+  });
+
   return (
     <div
       className="p-4 rounded-md bg-neutral text-neutral-content flex flex-row justify-between items-center my-2"
@@ -74,6 +81,14 @@ function ServiceRow({chall, team} : {chall: Challenge, team: Team}) {
           will be <u>provisioned</u>. Are you sure?
         </ConfirmModal>
         <ConfirmModal
+          action="Execute"
+          btn={<button className="btn btn-primary btn-sm">Dry Run</button>}
+          onAction={() => dryRunMutation.mutate()}
+        >
+          Dry run for team <strong>{team.name}</strong> in challenge <strong>{chall.title}</strong>&nbsp;
+          will be <u>executed</u>. Are you sure?
+        </ConfirmModal>
+        <ConfirmModal
           action="Reset"
           btn={<button className="btn btn-warning btn-sm">Reset</button>}
           onAction={() => resetMutation.mutate()}
@@ -102,14 +117,32 @@ function ServiceRow({chall, team} : {chall: Challenge, team: Team}) {
   );
 }
 
-function ChallengeServicesSection({chall, teams}: {chall: Challenge, teams: Team[] | undefined}) {
+function ChallengeServicesSection({chall, teams, service_idx}: {chall: Challenge, teams: Team[] | undefined, service_idx: number}) {
+  let team_master_id = -1;
+  if (teams) team_master_id = teams[0].id;
+
+  const infraProvisionMutation = useMutation({
+    mutationFn: () =>
+      postAdmin(`admin/teams/${team_master_id}/challenges/${chall.id}/service-manager/?action=provision`, {
+        json: { confirm: true },
+      }),
+  });
+
   return(
     <div className="my-5">
       <div className="rounded-md p-2 my-2 flex flex-row justify-between items-center gap-4">
         <strong className="font-strong text-lg">{chall.title}</strong>
+        { process.env.NEXT_PUBLIC_SERVICE_MANAGE_PANEL === "fullserver" && service_idx === 0 &&
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={() => infraProvisionMutation.mutate()}
+          >
+            Provision Infrastructure
+          </button>
+        }
       </div>
       {teams?.map(team => (
-        <ServiceRow chall={chall} team={team} key={`servicerow-${team.id}-${chall.id}`}/>
+        <ServiceRow chall={chall} team={team} service_idx={service_idx} key={`servicerow-${team.id}-${chall.id}`}/>
       ))}
     </div>
   )
@@ -154,9 +187,8 @@ export default function ServicePage() {
           Provision All
         </button>
       </div>
-
-      {challenges?.data.map((chall) => (
-        <ChallengeServicesSection chall={chall} teams={teams?.data} key={`challsection-${chall.id}`} />
+      {challenges?.data.map((chall, idx) => (
+        <ChallengeServicesSection chall={chall} teams={teams?.data} service_idx={idx} key={`challsection-${chall.id}`} />
       ))}
     </div>
   );
