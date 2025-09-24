@@ -11,6 +11,9 @@ import { useAtom } from "jotai";
 import { attackMarkerAtom } from "@/components/states";
 import { randomColor } from "./utils";
 
+
+const SFX_FILE_PATH = "/sounds/laser-gun.mp3"
+
 function teamIdTransform(srcId: number, data?: Team[]) {
   if (data == undefined) return -1;
   for (var i = 0; i < data.length; i++) {
@@ -28,20 +31,38 @@ export default function AttackMapPage() {
   var [attackMarker, setAttackMarker] = useAtom(attackMarkerAtom);
 
   useEffect(() => {
-    socketio.on("attack-event", (sockData: AttackLog) => {
-      setAttackLog((prevLog) => [sockData, ...prevLog]);
-      const markerData = {
-        attackerId: teamIdTransform(sockData.attacker.id, teamData),
-        defenderId: teamIdTransform(sockData.defender.id, teamData),
-        color: randomColor(),
-      };
-      attackMarker.push(markerData);
-      setAttackMarker(attackMarker);
-    });
-    return () => {
-      socketio.off("attack-event");
+  let buffer: any[] = [];
+  let timeout: NodeJS.Timeout | null = null;
+
+  const handler = (sockData: AttackLog) => {
+    // 1. Update attack logs immediately if you want
+    setAttackLog((prevLog) => [sockData, ...prevLog]);
+
+    // 2. Create marker for this event
+    const markerData = {
+      attackerId: teamIdTransform(sockData.attacker.id, teamData),
+      defenderId: teamIdTransform(sockData.defender.id, teamData),
+      color: randomColor(),
     };
-  }, [socketio, teamData, attackMarker]);
+    buffer.push(markerData);
+
+    // 3. Reset debounce timer
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      // after 1s without any new events, flush all buffered markers
+      setAttackMarker((prev) => [...prev, ...buffer]);
+      buffer = [];
+      timeout = null;
+    }, 1000);
+  };
+
+  socketio.on("attack-event", handler);
+
+  return () => {
+    socketio.off("attack-event", handler);
+    if (timeout) clearTimeout(timeout);
+  };
+}, [socketio, teamData, setAttackLog, setAttackMarker]);
 
   if (isLoading) {
     return (
@@ -63,7 +84,13 @@ export default function AttackMapPage() {
         viewBox="0 0 1500 750"
       >
         <AttackMapPanel teamData={data?.data} />
-        <AttackMarkerPanel markerData={attackMarker} teamLen={teamLen} />
+        <AttackMarkerPanel
+          markerData={attackMarker}
+          teamLen={teamLen}
+          onMarkerDone={() => setAttackMarker((prev) => prev.slice(1))}
+          onBatchDone={(count) => setAttackMarker((prev) => prev.slice(count))}
+          shotSfxUrl={SFX_FILE_PATH}
+        />
       </svg>
     </div>
   );
