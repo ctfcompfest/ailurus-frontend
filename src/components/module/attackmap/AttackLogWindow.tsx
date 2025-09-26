@@ -1,7 +1,10 @@
 import { ArrowRight } from "@phosphor-icons/react";
 import React, { useState, useRef } from "react";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { AttackLog } from "./interface";
-import moment from 'moment'
+
+dayjs.extend(utc);
 
 export interface AttackLogWindowProps {
   attackLogs: AttackLog[];
@@ -22,7 +25,7 @@ function AttackLogRow({ attacker, defender, index, solved_at }: AttackLogRowProp
       {index > 0 && <div className="divider my-0 w-full"></div>}
       <div className="grid grid-cols-4 text-center p-2">
         {solved_at && <pre>
-          {moment(solved_at).utcOffset(utcOffset).format('HH:mm:ss')}
+          {dayjs(solved_at).utcOffset(utcOffset).format("HH:mm:ss")}
         </pre>}
         <pre>
           <code>{attacker}</code>
