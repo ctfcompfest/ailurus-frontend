@@ -6,6 +6,7 @@ export interface AttackLogEntity {
 export interface AttackLog {
   attacker: AttackLogEntity;
   defender: AttackLogEntity;
+  solved_at?: Date;
 }
 
 export interface AttackMarker {
