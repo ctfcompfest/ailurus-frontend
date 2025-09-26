@@ -31,38 +31,38 @@ export default function AttackMapPage() {
   var [attackMarker, setAttackMarker] = useAtom(attackMarkerAtom);
 
   useEffect(() => {
-  let buffer: any[] = [];
-  let timeout: NodeJS.Timeout | null = null;
+    let buffer: any[] = [];
+    let timeout: NodeJS.Timeout | null = null;
 
-  const handler = (sockData: AttackLog) => {
-    // 1. Update attack logs immediately if you want
-    setAttackLog((prevLog) => [sockData, ...prevLog]);
+    const handler = (sockData: AttackLog) => {
+      // 1. Update attack logs immediately if you want
+      setAttackLog((prevLog) => [sockData, ...prevLog]);
 
-    // 2. Create marker for this event
-    const markerData = {
-      attackerId: teamIdTransform(sockData.attacker.id, teamData),
-      defenderId: teamIdTransform(sockData.defender.id, teamData),
-      color: randomColor(),
+      // 2. Create marker for this event
+      const markerData = {
+        attackerId: teamIdTransform(sockData.attacker.id, teamData),
+        defenderId: teamIdTransform(sockData.defender.id, teamData),
+        color: randomColor(),
+      };
+      buffer.push(markerData);
+
+      // 3. Reset debounce timer
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        // after 1s without any new events, flush all buffered markers
+        setAttackMarker((prev) => [...prev, ...buffer]);
+        buffer = [];
+        timeout = null;
+      }, 1000);
     };
-    buffer.push(markerData);
 
-    // 3. Reset debounce timer
-    if (timeout) clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      // after 1s without any new events, flush all buffered markers
-      setAttackMarker((prev) => [...prev, ...buffer]);
-      buffer = [];
-      timeout = null;
-    }, 1000);
-  };
+    socketio.on("attack-event", handler);
 
-  socketio.on("attack-event", handler);
-
-  return () => {
-    socketio.off("attack-event", handler);
-    if (timeout) clearTimeout(timeout);
-  };
-}, [socketio, teamData, setAttackLog, setAttackMarker]);
+    return () => {
+      socketio.off("attack-event", handler);
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [teamData, setAttackLog, setAttackMarker]);
 
   if (isLoading) {
     return (

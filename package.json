@@ -19,6 +19,7 @@
     "@types/react-dom": "18.3.0",
     "autoprefixer": "10.4.19",
     "clsx": "^2.1.1",
+    "dayjs": "^1.11.18",
     "eslint": "8.57.0",
     "eslint-config-next": "14.2.5",
     "framer-motion": "^11.3.19",
@@ -39,5 +40,6 @@
   "devDependencies": {
     "@swc-jotai/react-refresh": "^0.1.1",
     "daisyui": "^4.12.10"
-  }
+  },
+  "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72"
 }

@@ -152,9 +152,9 @@ export function AttackMarkerPanel({
         try {
           if (shotSfxUrl) {
             const audio = new Audio(shotSfxUrl);
-            audio.play().catch((err) => {console.error(err)});
+            audio.play().catch((err) => { console.error(err) });
           }
-        } catch {}
+        } catch { }
 
         const onDone = () => {
           // impact sfx
@@ -162,9 +162,9 @@ export function AttackMarkerPanel({
           try {
             if (impactSfxUrl) {
               const audio = new Audio(impactSfxUrl);
-              audio.play().catch(() => {});
+              audio.play().catch(() => { });
             }
-          } catch {}
+          } catch { }
 
           const fade = fadeOut(beam);
           animsRef.current.push(fade);
@@ -200,7 +200,6 @@ export function AttackMarkerPanel({
   };
 
   useEffect(() => {
-    console.log("USE EFFECT CALLED", crypto.randomUUID())
     if (markerData.length < lastIdxRef.current) {
       lastIdxRef.current = markerData.length;
       return;
