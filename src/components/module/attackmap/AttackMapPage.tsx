@@ -81,7 +81,7 @@ export default function AttackMapPage() {
         id="attack-map"
         width="100%"
         height="100%"
-        viewBox="0 0 1500 750"
+        viewBox="0 0 1500 800"
       >
         <AttackMapPanel teamData={data?.data} />
         <AttackMarkerPanel
