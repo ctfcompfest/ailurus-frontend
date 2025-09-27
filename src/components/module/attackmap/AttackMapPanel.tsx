@@ -25,15 +25,21 @@ function AttackMapPoint({ pointId, pointName, teamLen }: AttackMapPointProps) {
         height={pointSize}
         x={posX}
         y={posY}
-      ></image>
-      <text
-        x={posX + pointSize / 2}
-        y={posY + pointSize + labelGapSize}
-        textAnchor="middle"
-        className="map-entity px-1 text-center break-words whitespace-normal"
+      />
+      <foreignObject
+        x={posX + pointSize / 2 - 70}
+        y={posY + pointSize + labelGapSize - 32}
+        width={140}
+        height={100}
       >
-        {pointName}
-      </text>
+        <div
+          xmlns="http://www.w3.org/1999/xhtml"
+          className="map-entity px-1 text-center"
+          style={{ wordBreak: "break-word", overflowWrap: "anywhere", lineHeight: 1.1 }}
+        >
+          {pointName}
+        </div>
+      </foreignObject>
     </g>
   );
 }
