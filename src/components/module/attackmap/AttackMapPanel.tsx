@@ -30,7 +30,7 @@ function AttackMapPoint({ pointId, pointName, teamLen }: AttackMapPointProps) {
         x={posX + pointSize / 2}
         y={posY + pointSize + labelGapSize}
         textAnchor="middle"
-        className="map-entity"
+        className="map-entity px-1 text-center break-words whitespace-normal"
       >
         {pointName}
       </text>
