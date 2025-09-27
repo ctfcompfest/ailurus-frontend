@@ -25,7 +25,7 @@ function AttackLogRow({ attacker, defender, index, solved_at }: AttackLogRowProp
       {index > 0 && <div className="divider my-0 w-full"></div>}
       <div className="grid grid-cols-4 text-center p-2">
         {solved_at && <pre>
-          {dayjs(solved_at).utcOffset(utcOffset).format("HH:mm:ss")}
+          {dayjs(solved_at).format("HH:mm:ss")}
         </pre>}
         <div className="px-1 text-center break-words whitespace-normal">
           {attacker}
