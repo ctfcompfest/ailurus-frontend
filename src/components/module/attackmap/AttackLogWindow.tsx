@@ -27,15 +27,15 @@ function AttackLogRow({ attacker, defender, index, solved_at }: AttackLogRowProp
         {solved_at && <pre>
           {dayjs(solved_at).utcOffset(utcOffset).format("HH:mm:ss")}
         </pre>}
-        <pre>
-          <code>{attacker}</code>
-        </pre>
+        <div className="px-1 text-center break-words whitespace-normal">
+          {attacker}
+        </div>
         <div className="justify-center flex">
           <ArrowRight size={24} />
         </div>
-        <pre>
-          <code>{defender}</code>
-        </pre>
+        <div className="px-1 text-center break-words whitespace-normal">
+          {defender}
+        </div>
       </div>
     </div>
   );
