@@ -31,7 +31,7 @@ export default function FullServerBasedPanel({ chall, isUnlocked }: TeamChallSer
   });
   const restartService = useMutation({
     mutationFn: () =>
-      postUser(`my/challenges/${chall?.id}/service-manager/?action=reset`, {
+      postUser(`my/challenges/${chall?.id}/service-manager/?action=restart`, {
         json: { confirm: true },
       }),
   });
